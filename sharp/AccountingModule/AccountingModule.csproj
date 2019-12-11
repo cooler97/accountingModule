@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectGuid>{A1D2F424-FC69-4C89-8A13-66BFEC6CBF63}</ProjectGuid>
+    <ProjectTypeGuids>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>Library</OutputType>
+    <RootNamespace>AccountingModule</RootNamespace>
+    <AssemblyName>AccountingModule</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <NoWin32Manifest>False</NoWin32Manifest>
+    <SignAssembly>False</SignAssembly>
+    <DelaySign>False</DelaySign>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <NoStdLib>False</NoStdLib>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <BaseAddress>4194304</BaseAddress>
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <FileAlignment>4096</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <Optimize>True</Optimize>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Atechnology.Components">
+      <HintPath>..\..\..\..\..\..\Program Files %28x86%29\Atechnology\Atechnology.Components.dll</HintPath>
+    </Reference>
+    <Reference Include="Atechnology.DBConnection">
+      <HintPath>..\..\..\..\..\..\Program Files %28x86%29\Atechnology\Atechnology.DBConnection.dll</HintPath>
+    </Reference>
+    <Reference Include="Atechnology.winDraw">
+      <HintPath>..\..\..\..\..\..\Program Files %28x86%29\Atechnology\Atechnology.winDraw.dll</HintPath>
+    </Reference>
+    <Reference Include="ObjectListView, Version=2.9.1.1072, Culture=neutral, PublicKeyToken=b1c5bf581481bcd4">
+      <HintPath>..\..\..\..\..\..\Program Files %28x86%29\SharpDevelop\5.1\bin\ObjectListView.dll</HintPath>
+    </Reference>
+    <Reference Include="SandDock">
+      <HintPath>..\..\..\..\..\..\Program Files %28x86%29\Atechnology\SandDock.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AccountingDoc.cs" />
+    <Compile Include="AccountingTable.cs" />
+    <Compile Include="AccountListView.cs" />
+    <Compile Include="ALVColumn.cs" />
+    <Compile Include="ClassLoader.cs" />
+    <Compile Include="DocType.cs" />
+    <Compile Include="DropDownDocumentForm.cs" />
+    <Compile Include="DropDownDocumentForm.Designer.cs">
+      <DependentUpon>DropDownDocumentForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FilterForm.cs" />
+    <Compile Include="FilterForm.Designer.cs">
+      <DependentUpon>FilterForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FilterParam.cs" />
+    <Compile Include="MainForm.cs" />
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Period.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TextBoxWithBtn.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DropDownDocumentForm.resx">
+      <DependentUpon>DropDownDocumentForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FilterForm.resx">
+      <DependentUpon>FilterForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="icons.resx" />
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
