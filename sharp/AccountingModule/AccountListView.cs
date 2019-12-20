@@ -1,14 +1,5 @@
-﻿/*
- * Created by SharpDevelop.
- * User: At
- * Date: 18.09.2019
- * Time: 12:49
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
-using System;
+﻿using System;
 using System.ComponentModel;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
@@ -18,7 +9,6 @@ using BrightIdeasSoftware;
 
 namespace AccountingModule
 {
-    
     public class AccountListView : FastDataListView
     {
         Dictionary<string, double> totalDic;
@@ -29,14 +19,14 @@ namespace AccountingModule
         
         bool isGeneratedTotalBox = false;
         
-        TextBoxWithBtn _dateFilterBox = null;
+        ComboBox _dateFilterBox = null;
         TextBoxWithBtn _customerCodeFilterBox = null;
         TextBoxWithBtn _customerNameFilterBox = null;
         TextBoxWithBtn _accountingSignFilterBox = null;
         TextBoxWithBtn _docTypeFilter = null;
         TextBox _nameDocFilterBox = null;
         
-        ALVColumn _dateColumn;
+        public ALVColumn _dateColumn;
         
         public ALVColumn DateColumn {
             
@@ -91,7 +81,7 @@ namespace AccountingModule
         ALVColumn _commentColumn;
         
         [Category("AccountListView"), TypeConverter("System.Windows.Forms.Panel, System.Design")]
-        public TextBoxWithBtn DateFilter
+        public ComboBox DateFilter
         {
             get
             {
@@ -222,16 +212,21 @@ namespace AccountingModule
             _dateColumn.Text = "Дата";
             _dateColumn.AspectName = "dtdoc";
             _dateColumn.IsEditable = false;
-            _dateColumn.ClusteringStrategy =
-                new DateTimeClusteringStrategy(DateTimePortion.Year | DateTimePortion.Month, "MMMM yyyy");
-            _dateColumn.Width = 90;
+            //            _dateColumn.ClusteringStrategy =
+            //                new DateTimeClusteringStrategy(DateTimePortion.Year | DateTimePortion.Month, "MMMM yyyy");
+            _dateColumn.Width = 140;
+            _dateColumn.UseFiltering = false;
+            _dateColumn.AspectToStringFormat = "{0:g}";
+            _dateColumn.Tag = 1;
             this.Columns.Add(_dateColumn);
+            this.PrimarySortColumn = _dateColumn;
             
             _customerCodeColumn = new ALVColumn();
             _customerCodeColumn.Text = "№";
             _customerCodeColumn.AspectName = "customercode";
             _customerCodeColumn.IsEditable = false;
-            _customerCodeColumn.Width = 60;
+            _customerCodeColumn.Width = 100;
+            _customerCodeColumn.Tag = 1;
             this.Columns.Add(_customerCodeColumn);
             
             _customerNameColumn = new ALVColumn();
@@ -239,28 +234,37 @@ namespace AccountingModule
             _customerNameColumn.AspectName = "customername";
             _customerNameColumn.IsEditable = false;
             _customerNameColumn.Width = 120;
+            _customerNameColumn.Tag = 2;
             this.Columns.Add(_customerNameColumn);
             
             _accountingSignColumn = new ALVColumn();
             _accountingSignColumn.Text = "Признак";
             _accountingSignColumn.AspectName = "accountingsign";
             _accountingSignColumn.IsEditable = false;
-            _accountingSignColumn.Width = 60;
+            _accountingSignColumn.TextAlign = HorizontalAlignment.Center;
+            _accountingSignColumn.Width = 100;
             _accountingSignColumn.IsHeaderVertical = true;
+            _accountingSignColumn.Tag = 1;
             this.Columns.Add(_accountingSignColumn);
             
             _typeDocNameColumn = new ALVColumn();
             _typeDocNameColumn.Text = "Документ";
             _typeDocNameColumn.AspectName = "typedocname";
             _typeDocNameColumn.IsEditable = false;
-            _typeDocNameColumn.Width = 90;
+            _typeDocNameColumn.TextAlign = HorizontalAlignment.Center;
+            _typeDocNameColumn.Width = 120;
+            _typeDocNameColumn.Tag = 1;
             this.Columns.Add(_typeDocNameColumn);
+            this.SecondarySortColumn = _typeDocNameColumn;
+            this.SecondarySortOrder = SortOrder.Ascending;
             
             _nameDocColumn = new ALVColumn();
             _nameDocColumn.Text = "№ Документ";
             _nameDocColumn.AspectName = "namedoc";
             _nameDocColumn.IsEditable = false;
-            _nameDocColumn.Width = 60;
+            _nameDocColumn.TextAlign = HorizontalAlignment.Center;
+            _nameDocColumn.Width = 120;
+            _nameDocColumn.Tag = 1;
             this.Columns.Add(_nameDocColumn);
             
             _quConstrColumn = new ALVColumn();
@@ -271,6 +275,7 @@ namespace AccountingModule
             _quConstrColumn.Width = 60;
             _quConstrColumn.ShowTotal = true;
             _quConstrColumn.UseFiltering = false;
+            _quConstrColumn.Tag = 1;
             this.Columns.Add(_quConstrColumn);
             
             _smOrderColumn = new ALVColumn();
@@ -278,20 +283,24 @@ namespace AccountingModule
             _smOrderColumn.AspectName = "smorder";
             _smOrderColumn.IsEditable = false;
             _smOrderColumn.TextAlign = HorizontalAlignment.Right;
-            _smOrderColumn.Width = 90;
+            _smOrderColumn.Width = 120;
             _smOrderColumn.ShowTotal = true;
             _smOrderColumn.UseFiltering = false;
             _smOrderColumn.WordWrap = true;
+            _smOrderColumn.AspectToStringFormat = "{0:#,##0.00}";
+            _smOrderColumn.Tag = 1;
             this.Columns.Add(_smOrderColumn);
             
             _smDocColumn = new ALVColumn();
             _smDocColumn.Text = "Сумма оплаты";
             _smDocColumn.AspectName = "smdoc";
+            _smDocColumn.AspectToStringFormat = "{0:#,##0.00}";
             _smDocColumn.IsEditable = false;
             _smDocColumn.TextAlign = HorizontalAlignment.Right;
-            _smDocColumn.Width = 90;
+            _smDocColumn.Width = 120;
             _smDocColumn.ShowTotal = true;
             _smDocColumn.UseFiltering = false;
+            _smDocColumn.Tag = 1;
             this.Columns.Add(_smDocColumn);
             
             _commentColumn = new ALVColumn();
@@ -301,8 +310,50 @@ namespace AccountingModule
             _commentColumn.Width = 250;
             _commentColumn.UseFiltering = false;
             _commentColumn.CalcBalance = true;
+            _commentColumn.Tag = 3;
             _balanceColumn = _commentColumn;
             this.Columns.Add(_commentColumn);
+        }
+        
+        public void UpdateFilteringView()
+        {
+            Predicate<object> filterPredicate = MatchText;
+            this.ModelFilter = new ModelFilter(filterPredicate);
+        }
+        
+        private bool MatchText(object o)
+        {
+            DataRowView rowView = (DataRowView) o;
+            DataRow dataRow = rowView.Row;
+            
+            bool result = true;
+            
+            foreach(ALVColumn col in Columns)
+            {
+                if(col.FilterControl == null)
+                    continue;
+                
+                result = IsValueStartsWith(dataRow, col);
+                if(result == false)
+                    return result;
+            }
+            
+            return true;
+        }
+        
+        private bool IsValueStartsWith(DataRow row, ALVColumn column)
+        {
+            string str = row[column.AspectName].ToString();
+            
+            if(column.FilterControl.GetType() == typeof(ComboBox))
+                return true;
+            
+            string filterValue = (column.FilterControl as TextBox).Text;
+            
+            if(!str.StartsWith(filterValue, StringComparison.InvariantCultureIgnoreCase))
+                return false;
+            
+            return true;
         }
         
         private void GenerateTotalTextBox()
@@ -321,20 +372,21 @@ namespace AccountingModule
         {
             TextBox textBox = new TextBox();
             textBox.ReadOnly = true;
+            //            textBox.BackColor = Color.White;
             textBox.TextAlign = HorizontalAlignment.Right;
             textBox.BorderStyle = BorderStyle.FixedSingle;
             textBox.ShortcutsEnabled = false;
             textBox.TextChanged += new TotalBoxDoubleFormatter().FormatEvent;
-            textBox.Font = new Font("Microsoft Sans Serif", 8f, FontStyle.Bold);
+            textBox.Font = new Font("Microsoft Sans Serif", 9f, FontStyle.Bold);
             return textBox;
         }
         
         private void GetTotalValues(ListViewItemCollection collection)
         {
+            totalDic = new Dictionary<string, double>();
+            
             if(collection == null || collection.Count < 1)
                 return;
-            
-            totalDic = new Dictionary<string, double>();
             
             foreach (ALVColumn column in this.Columns)
             {
@@ -350,24 +402,20 @@ namespace AccountingModule
             List<string> keys = new List<string>(totalDic.Keys);
             
             DataRowView rowView = null;
+            Type rowType;
             
             for (int count = 0; count < collection.Count; count++)
             {
                 rowView = (DataRowView)(collection[count] as OLVListItem).RowObject;
-                
                 foreach (String key in keys)
                 {
-                    if (rowView.Row[key] is double)
+                    rowType = rowView.Row[key].GetType();
+                    if ( Utils.IsNumericType(rowType) )
                     {
-                        totalDic[key] += (double)rowView.Row[key];
-                    }
-                    else if (rowView.Row[key] is int)
-                    {
-                        totalDic[key] += (int)rowView.Row[key];
+                        totalDic[key] += Convert.ToDouble(rowView.Row[key]);
                     }
                 }
             }
-            
 
             if (_balanceColumn != null)
             {
@@ -390,17 +438,40 @@ namespace AccountingModule
             return orderSm - paymentSm;
         }
         
+        public void AutoSizeColumn()
+        {
+            float totalColumnWidth = 0;
+            
+            for (int i = 0; i < this.Columns.Count; i++)
+                totalColumnWidth += Convert.ToInt32(this.Columns[i].Tag);
+            
+            for (int i = 0; i < this.Columns.Count; i++)
+            {
+                float colPercentage = (Convert.ToInt32(this.Columns[i].Tag) / totalColumnWidth);
+                this.Columns[i].Width = (int)(colPercentage * this.ClientRectangle.Width);
+            }
+        }
+        
         protected override void OnDrawColumnHeader(DrawListViewColumnHeaderEventArgs e)
         {
             ALVColumn column = e.Header as ALVColumn;
             
             base.OnDrawColumnHeader(e);
             
+            if(this.PrimarySortColumn == column)
+            {
+                column.HeaderImageKey = (this.PrimarySortOrder == SortOrder.Ascending) ? "asc" : "desc";
+            }
+            
+            if(this.SecondarySortColumn == column)
+            {
+                column.HeaderImageKey = (this.SecondarySortOrder == SortOrder.Ascending) ? "asc" : "desc";
+            }
+            
             if (!isGeneratedTotalBox && _totalPanel != null)
             {
                 GenerateTotalTextBox();
                 isGeneratedTotalBox = true;
-                AtLog.AddMessage("Call: generateTotalTextBox");
             }
             
             if(column.FilterControl != null)
@@ -424,13 +495,18 @@ namespace AccountingModule
         
         private void CalcControlPosition(Control control, Rectangle bounds)
         {
-            control.Location = new System.Drawing.Point(bounds.Left + 1, 4);
+            control.Location = new System.Drawing.Point(bounds.Left + 3, 4);
             control.Size = new System.Drawing.Size(bounds.Width - 1, 32);
         }
 
         protected void OnItemsChanged(object sender, ItemsChangedEventArgs e)
         {
-            GetTotalValues(this.Items);
+            try{
+                GetTotalValues(this.Items);
+            } catch(Exception ex) {
+                AtLog.AddMessage(ex.Message + "  \\n\\r " +
+                                 ex.StackTrace);
+            }
         }
         
         abstract class TotalBoxFormatter {

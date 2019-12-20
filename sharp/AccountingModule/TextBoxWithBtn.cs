@@ -35,7 +35,7 @@ namespace AccountingModule
             button.Cursor = Cursors.Default;
             button.Image = bitmap;
             button.Click += OnClick;
-            this.Controls.Add(button);
+//            this.Controls.Add(button);
             
             SendMessage(this.Handle, 0xd3, (IntPtr)2, (IntPtr)(button.Width << 16));
         }

@@ -1,27 +1,18 @@
-﻿/*
- * Created by SharpDevelop.
- * User: At
- * Date: 18.09.2019
- * Time: 12:37
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Windows.Forms;
 using Atechnology.Components;
-using Atechnology.DBConnections2;
-using Atechnology.Components.AtLogWatcher;
+using Atechnology.ecad.Document;
 using BrightIdeasSoftware;
+using BrightIdeasSoftware.Design;
+using Logistic.ProductionSchedule.Scheduler;
 
 namespace AccountingModule
 {
-
-    public partial class MainForm : AtUserControl //Form
+    public partial class MainForm : AtUserControl
     {
-        
-        private Period period;
+        private Period periodForm;
         
         private AccountingDoc accountingDoc;
         
@@ -29,23 +20,39 @@ namespace AccountingModule
         
         public MainForm() {
             InitializeComponent();
-            accountingDoc = new AccountingDoc(this.db, accountingListView);
-            period = new Period();
             
-            toolStriPeriodSelect.Text = period.StringInterval;
+            periodForm = new Period();
+            
+            dateComboBox.Items.Add(periodForm.StringInterval);
+            dateComboBox.SelectedIndex = 0;
 
-            filterLink.Add(dateFilterBox, accountingListView.DateColumn);
+//            filterLink.Add(dateComboBox, accountingListView.DateColumn);
             filterLink.Add(customerCodeFilterBox, accountingListView.CustomerCodeColumn);
             filterLink.Add(customerNameFilterBox, accountingListView.CustomerNameColumn);
             filterLink.Add(accountingSignFilterBox, accountingListView.AccountingSignColumn);
             filterLink.Add(docTypeFilter, accountingListView.TypeDocNameColumn);
             filterLink.Add(docNameFilter, accountingListView.NameDocColumn);
+            
+            accountingDoc = new AccountingDoc(this.db, accountingListView, GetFilter());
+        }
+        
+        void RefreshAccountingDocView()
+        {
+            ShowSaveDialogBox();
+            accountingDoc.FillAccountingTable(GetFilter());
         }
         
         void RefreshBtnClick(object sender, EventArgs e)
         {
-            ShowSaveDialogBox();
-            accountingDoc.FillAccountingTable(null);
+            RefreshAccountingDocView();
+        }
+        
+        FilterParam GetFilter()
+        {
+            FilterParam filterParam = new FilterParam();
+            filterParam.dateFrom = periodForm.FromDate;
+            filterParam.dateTo = periodForm.ToDate;
+            return filterParam;
         }
         
         void SaveBtnClick(object sender, EventArgs e)
@@ -55,7 +62,8 @@ namespace AccountingModule
         
         void ClsBtnClick(object sender, EventArgs e)
         {
-
+            ShowSaveDialogBox();
+            this.Close();
         }
         
         void MainFormFormClosing(object sender, FormClosingEventArgs e)
@@ -72,69 +80,74 @@ namespace AccountingModule
         
         void DocNameFilterTextChanged(object sender, EventArgs e)
         {
-            SetTextMatchFilter();
-        }
-        
-        private void SetTextMatchFilter() {
-            accountingListView.ModelFilter = GetModelFilter();
-            accountingListView.DefaultRenderer = new BaseRenderer();
-        }
-        
-        private TextMatchFilter GetModelFilter()
-        {
-            TextMatchFilter modelFilter = new TextMatchFilter(accountingListView);
-            
-            List<OLVColumn> columns = new List<OLVColumn>();
-            List<string> fString = new List<string>();
-            
-            foreach(KeyValuePair<TextBox, ALVColumn> entry in filterLink) {
-                if(!String.IsNullOrEmpty(entry.Key.Text)){
-                    columns.Add(entry.Value);
-                    fString.Add(entry.Key.Text);
-                }
-            }
-            
-            modelFilter.Columns = columns.ToArray();
-            modelFilter.PrefixStrings = fString;
-            
-            return modelFilter;
+            accountingListView.UpdateFilteringView();
         }
         
         void DocTypeFilterTextChanged(object sender, EventArgs e)
         {
-            SetTextMatchFilter();
+            accountingListView.UpdateFilteringView();
         }
         
         void AccountingSignFilterBoxTextChanged(object sender, EventArgs e)
         {
-            SetTextMatchFilter();
+            accountingListView.UpdateFilteringView();
         }
         
         void CustomerNameFilterBoxTextChanged(object sender, EventArgs e)
         {
-            SetTextMatchFilter();
+            accountingListView.UpdateFilteringView();
         }
         
         void CustomerCodeFilterBoxTextChanged(object sender, EventArgs e)
         {
-            SetTextMatchFilter();
+            accountingListView.UpdateFilteringView();
         }
         
         void DateFilterBoxTextChanged(object sender, EventArgs e)
         {
-            SetTextMatchFilter();
-        }
-        void AccountingListViewItemsChanged(object sender, ItemsChangedEventArgs e)
-        {
-            
+            accountingListView.UpdateFilteringView();
         }
         
         void ToolStriPeriodSelectDropDown(object sender, EventArgs e)
         {
             ToolStripComboBox comboBox = (ToolStripComboBox) sender;
-            comboBox.DroppedDown = false;
-            period.ShowPeriodForm();
-            comboBox.Text = period.StringInterval;            
+            comboBox.Items.Clear();
+            if(periodForm.ShowPeriodForm() == DialogResult.OK)
+            {
+                comboBox.Items.Add(periodForm.StringInterval);
+                comboBox.SelectedIndex = 0;
+                comboBox.Focus();
+                RefreshAccountingDocView();
+            }
+            SendKeys.Send("{Enter}");
+        }
+        void Button1Click(object sender, EventArgs e)
+        {
+            ReportUtil.exportFin(periodForm.FromDate, periodForm.ToDate);
+        }
+        void ToolStripButton1Click(object sender, EventArgs e)
+        {
+            AtUserControl paymentImport = new PaymentImportForm(this.accountingDoc);
+            MdiManager.Add((AtUserControl)paymentImport);
+            paymentImport.Show();
+        }
+        
+        void ПодборШиринывсеКолонкиToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            accountingListView.AutoSizeColumn();
+        }
+        void DateComboBoxDropDown(object sender, EventArgs e)
+        {
+            ComboBox comboBox = (ComboBox) sender;
+            comboBox.Items.Clear();
+            if(periodForm.ShowPeriodForm() == DialogResult.OK)
+            {
+                comboBox.Items.Add(periodForm.StringInterval);
+                comboBox.SelectedIndex = 0;
+                comboBox.Focus();
+                RefreshAccountingDocView();
+            }
+            SendKeys.Send("{Enter}");
         }
         
     }

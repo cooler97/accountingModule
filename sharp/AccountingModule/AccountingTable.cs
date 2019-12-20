@@ -1,19 +1,8 @@
-﻿/*
- * Created by SharpDevelop.
- * User: At
- * Date: 24.09.2019
- * Time: 15:29
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
-using System;
+﻿using System;
 using System.Data;
 
 namespace AccountingModule
 {
-    /// <summary>
-    /// Description of AccountingTable.
-    /// </summary>
     public class AccountingTable : DataTable
     {
         public AccountingTable()

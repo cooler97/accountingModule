@@ -1,62 +1,35 @@
-﻿/*
- * Created by SharpDevelop.
- * User: At
- * Date: 28.11.2019
- * Time: 14:04
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
-using System;
+﻿using System;
+using System.Windows.Forms;
 using Atechnology.Components;
 
 namespace AccountingModule
 {
-    /// <summary>
-    /// Description of Period.
-    /// </summary>
     public class Period
     {
-        
         private PeriodForm periodForm;
-        
-        private int _type = 0;
         
         public int Type {
             
             get {
-                return _type;
-            }
-            
-            set {
-                _type = value;
+                if(periodForm != null){
+                    return periodForm.PeriodTyp;
+                }
+                return 0;
             }
             
         }
-        
-        private DateTime _fromDate = new DateTime();
         
         public DateTime FromDate {
             
             get {
-                return _fromDate;
+                return periodForm.DateTime1.Date;
             }
-            
-            set {
-                _fromDate = value;
-            }
-            
         }
-        
-        private DateTime _toDate = new DateTime();
         
         public DateTime ToDate {
             
             get {
-                return _toDate;
-            }
-            
-            set {
-                _toDate = value;
+                return periodForm.DateTime2.AddDays(1).Date;
             }
             
         }
@@ -71,21 +44,21 @@ namespace AccountingModule
             }
             
         }
-        
+
         public Period()
         {
-            this._type = 0;
-            periodForm = new PeriodForm();
+            DateTime dateTime = DateTime.Now;
+            dateTime = dateTime.AddDays((double)(-(double)dateTime.Day + 1));
+            
+            DateTime dateTime2 = DateTime.Now;
+            dateTime2 = dateTime2.AddDays((double)(DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month) - dateTime2.Day));
+            
+            periodForm = new PeriodForm(dateTime, dateTime2);
+            periodForm.PeriodTyp = 1;
         }
         
-        public void ShowPeriodForm() {
-           
-            if(periodForm.ShowDialog() == System.Windows.Forms.DialogResult.OK){
-                this._type = periodForm.PeriodTyp;
-                this._fromDate = periodForm.DateTime1;
-                this._toDate = periodForm.DateTime2;
-            }
-            
+        public DialogResult ShowPeriodForm() {
+            return periodForm.ShowDialog();
         }
     }
 }
