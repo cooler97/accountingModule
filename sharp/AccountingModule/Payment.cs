@@ -8,6 +8,7 @@ namespace AccountingModule
         public static int DOCOPER_INCOMING_PAYMENT_ORDER = 6;
         public static int DOCOPER_BONUS = 107;
         public static int DOCOPER_OPENING_BALANCE = 108;
+        public static int DOCOPER_OPENING_BALANCE_CASH = 110;
         
         public string Name {get; set;}
         public DateTime DtDoc {get; set;}

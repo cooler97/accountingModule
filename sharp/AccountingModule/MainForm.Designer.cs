@@ -23,15 +23,20 @@ namespace AccountingModule
         private System.Windows.Forms.Panel filterPanel;
         private AccountingModule.TextBoxWithBtn customerNameFilterBox;
         private System.Windows.Forms.Button saveBtn;
-        private AccountingModule.TextBoxWithBtn docTypeFilter;
         private System.Windows.Forms.TextBox docNameFilter;
-        private AccountingModule.TextBoxWithBtn accountingSignFilterBox;
+        private System.Windows.Forms.ComboBox accountingSignFilterBox;
         private AccountingModule.TextBoxWithBtn customerCodeFilterBox;
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.ToolStripButton toolStripButton1;
+        private System.Windows.Forms.ToolStripButton paymentsLoadBtn;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem подборШиринывсеКолонкиToolStripMenuItem;
         private System.Windows.Forms.ComboBox dateComboBox;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem менеджерToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem changePeopleList;
+        private System.Windows.Forms.ToolStripButton closeFinPeriodBtn;
+        private System.Windows.Forms.ComboBox docTypeComboBox;
+        private System.Windows.Forms.ComboBox managerComboBox;
         
         /// <summary>
         /// Disposes resources used by the form.
@@ -62,18 +67,23 @@ namespace AccountingModule
             this.saveBtn = new System.Windows.Forms.Button();
             this.refreshBtn = new System.Windows.Forms.Button();
             this.clsBtn = new System.Windows.Forms.Button();
+            this.docTypeComboBox = new System.Windows.Forms.ComboBox();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+            this.paymentsLoadBtn = new System.Windows.Forms.ToolStripButton();
+            this.closeFinPeriodBtn = new System.Windows.Forms.ToolStripButton();
             this.totalPanel = new System.Windows.Forms.Panel();
             this.accountingListView = new AccountingModule.AccountListView();
-            this.accountingSignFilterBox = new AccountingModule.TextBoxWithBtn();
+            this.accountingSignFilterBox = new System.Windows.Forms.ComboBox();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.подборШиринывсеКолонкиToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+            this.менеджерToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.changePeopleList = new System.Windows.Forms.ToolStripMenuItem();
             this.customerCodeFilterBox = new AccountingModule.TextBoxWithBtn();
             this.customerNameFilterBox = new AccountingModule.TextBoxWithBtn();
             this.dateComboBox = new System.Windows.Forms.ComboBox();
-            this.docTypeFilter = new AccountingModule.TextBoxWithBtn();
             this.filterPanel = new System.Windows.Forms.Panel();
+            this.managerComboBox = new System.Windows.Forms.ComboBox();
             this.docNameFilter = new System.Windows.Forms.TextBox();
             this.bottomPanel.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -143,26 +153,47 @@ namespace AccountingModule
             this.clsBtn.UseVisualStyleBackColor = true;
             this.clsBtn.Click += new System.EventHandler(this.ClsBtnClick);
             // 
+            // docTypeComboBox
+            // 
+            this.docTypeComboBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.docTypeComboBox.FormattingEnabled = true;
+            this.docTypeComboBox.Location = new System.Drawing.Point(491, 0);
+            this.docTypeComboBox.Name = "docTypeComboBox";
+            this.docTypeComboBox.Size = new System.Drawing.Size(93, 21);
+            this.docTypeComboBox.TabIndex = 3;
+            this.docTypeComboBox.Text = "Все";
+            this.docTypeComboBox.SelectedIndexChanged += new System.EventHandler(this.DocTypeComboBoxSelectedIndexChanged);
+            // 
             // toolStrip1
             // 
             this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolStrip1.ImageScalingSize = new System.Drawing.Size(28, 28);
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripButton1});
+            this.paymentsLoadBtn,
+            this.closeFinPeriodBtn});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(956, 35);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
-            // toolStripButton1
+            // paymentsLoadBtn
             // 
-            this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
-            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton1.Name = "toolStripButton1";
-            this.toolStripButton1.Size = new System.Drawing.Size(143, 32);
-            this.toolStripButton1.Text = "Загрузка платежей";
-            this.toolStripButton1.Click += new System.EventHandler(this.ToolStripButton1Click);
+            this.paymentsLoadBtn.Image = ((System.Drawing.Image)(resources.GetObject("paymentsLoadBtn.Image")));
+            this.paymentsLoadBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.paymentsLoadBtn.Name = "paymentsLoadBtn";
+            this.paymentsLoadBtn.Size = new System.Drawing.Size(143, 32);
+            this.paymentsLoadBtn.Text = "Загрузка платежей";
+            this.paymentsLoadBtn.Click += new System.EventHandler(this.ToolStripButton1Click);
+            // 
+            // closeFinPeriodBtn
+            // 
+            this.closeFinPeriodBtn.Image = ((System.Drawing.Image)(resources.GetObject("closeFinPeriodBtn.Image")));
+            this.closeFinPeriodBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.closeFinPeriodBtn.Name = "closeFinPeriodBtn";
+            this.closeFinPeriodBtn.Size = new System.Drawing.Size(106, 32);
+            this.closeFinPeriodBtn.Text = "Закрыть год";
+            this.closeFinPeriodBtn.Click += new System.EventHandler(this.ToolStripButton2Click);
             // 
             // totalPanel
             // 
@@ -187,7 +218,7 @@ namespace AccountingModule
             this.accountingListView.DataSource = null;
             this.accountingListView.DateFilter = this.dateComboBox;
             this.accountingListView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.accountingListView.DocTypeFilter = this.docTypeFilter;
+            this.accountingListView.DocTypeFilter = this.docTypeComboBox;
             this.accountingListView.FilterPanel = this.filterPanel;
             this.accountingListView.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.accountingListView.FullRowSelect = true;
@@ -195,6 +226,7 @@ namespace AccountingModule
             this.accountingListView.HeaderWordWrap = true;
             this.accountingListView.IsSearchOnSortColumn = false;
             this.accountingListView.Location = new System.Drawing.Point(0, 65);
+            this.accountingListView.ManagerFilterBox = this.managerComboBox;
             this.accountingListView.Name = "accountingListView";
             this.accountingListView.NameDocFilterBox = this.docNameFilter;
             this.accountingListView.OwnerDrawnHeader = true;
@@ -209,23 +241,27 @@ namespace AccountingModule
             this.accountingListView.UseFiltering = true;
             this.accountingListView.View = System.Windows.Forms.View.Details;
             this.accountingListView.VirtualMode = true;
+            this.accountingListView.DoubleClick += new System.EventHandler(this.AccountingListViewDoubleClick);
             // 
             // accountingSignFilterBox
             // 
-            this.accountingSignFilterBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.accountingSignFilterBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
-            this.accountingSignFilterBox.Location = new System.Drawing.Point(302, 0);
+            this.accountingSignFilterBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.accountingSignFilterBox.FormattingEnabled = true;
+            this.accountingSignFilterBox.Location = new System.Drawing.Point(421, 0);
             this.accountingSignFilterBox.Name = "accountingSignFilterBox";
-            this.accountingSignFilterBox.Size = new System.Drawing.Size(68, 21);
-            this.accountingSignFilterBox.TabIndex = 15;
-            this.accountingSignFilterBox.TextChanged += new System.EventHandler(this.AccountingSignFilterBoxTextChanged);
+            this.accountingSignFilterBox.Size = new System.Drawing.Size(64, 21);
+            this.accountingSignFilterBox.TabIndex = 8;
+            this.accountingSignFilterBox.Text = "Все";
+            this.accountingSignFilterBox.SelectedIndexChanged += new System.EventHandler(this.AccountingSignFilterBoxSelectedIndexChanged);
             // 
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.подборШиринывсеКолонкиToolStripMenuItem});
+            this.подборШиринывсеКолонкиToolStripMenuItem,
+            this.toolStripMenuItem1,
+            this.менеджерToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(248, 26);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(248, 54);
             // 
             // подборШиринывсеКолонкиToolStripMenuItem
             // 
@@ -233,6 +269,25 @@ namespace AccountingModule
             this.подборШиринывсеКолонкиToolStripMenuItem.Size = new System.Drawing.Size(247, 22);
             this.подборШиринывсеКолонкиToolStripMenuItem.Text = "Подбор ширины (все колонки)";
             this.подборШиринывсеКолонкиToolStripMenuItem.Click += new System.EventHandler(this.ПодборШиринывсеКолонкиToolStripMenuItemClick);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(244, 6);
+            // 
+            // менеджерToolStripMenuItem
+            // 
+            this.менеджерToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.changePeopleList});
+            this.менеджерToolStripMenuItem.Name = "менеджерToolStripMenuItem";
+            this.менеджерToolStripMenuItem.Size = new System.Drawing.Size(247, 22);
+            this.менеджерToolStripMenuItem.Text = "Менеджер";
+            // 
+            // changePeopleList
+            // 
+            this.changePeopleList.Name = "changePeopleList";
+            this.changePeopleList.Size = new System.Drawing.Size(128, 22);
+            this.changePeopleList.Text = "Изменить";
             // 
             // customerCodeFilterBox
             // 
@@ -264,23 +319,14 @@ namespace AccountingModule
             this.dateComboBox.TabIndex = 16;
             this.dateComboBox.DropDown += new System.EventHandler(this.DateComboBoxDropDown);
             // 
-            // docTypeFilter
-            // 
-            this.docTypeFilter.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.docTypeFilter.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
-            this.docTypeFilter.Location = new System.Drawing.Point(397, 0);
-            this.docTypeFilter.Name = "docTypeFilter";
-            this.docTypeFilter.Size = new System.Drawing.Size(77, 21);
-            this.docTypeFilter.TabIndex = 12;
-            this.docTypeFilter.TextChanged += new System.EventHandler(this.DocTypeFilterTextChanged);
-            // 
             // filterPanel
             // 
-            this.filterPanel.Controls.Add(this.dateComboBox);
             this.filterPanel.Controls.Add(this.accountingSignFilterBox);
+            this.filterPanel.Controls.Add(this.managerComboBox);
+            this.filterPanel.Controls.Add(this.docTypeComboBox);
+            this.filterPanel.Controls.Add(this.dateComboBox);
             this.filterPanel.Controls.Add(this.customerCodeFilterBox);
             this.filterPanel.Controls.Add(this.docNameFilter);
-            this.filterPanel.Controls.Add(this.docTypeFilter);
             this.filterPanel.Controls.Add(this.customerNameFilterBox);
             this.filterPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this.filterPanel.Location = new System.Drawing.Point(0, 35);
@@ -288,11 +334,22 @@ namespace AccountingModule
             this.filterPanel.Size = new System.Drawing.Size(956, 30);
             this.filterPanel.TabIndex = 6;
             // 
+            // managerComboBox
+            // 
+            this.managerComboBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.managerComboBox.FormattingEnabled = true;
+            this.managerComboBox.Location = new System.Drawing.Point(294, 1);
+            this.managerComboBox.Name = "managerComboBox";
+            this.managerComboBox.Size = new System.Drawing.Size(121, 21);
+            this.managerComboBox.TabIndex = 17;
+            this.managerComboBox.Text = "Все";
+            this.managerComboBox.SelectedIndexChanged += new System.EventHandler(this.ManagerComboBoxSelectedIndexChanged);
+            // 
             // docNameFilter
             // 
             this.docNameFilter.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.docNameFilter.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
-            this.docNameFilter.Location = new System.Drawing.Point(498, 0);
+            this.docNameFilter.Location = new System.Drawing.Point(601, 0);
             this.docNameFilter.Name = "docNameFilter";
             this.docNameFilter.Size = new System.Drawing.Size(100, 21);
             this.docNameFilter.TabIndex = 13;

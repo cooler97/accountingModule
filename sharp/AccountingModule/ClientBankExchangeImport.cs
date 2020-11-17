@@ -2,6 +2,7 @@
 using System.Data;
 using System.IO;
 using System.Text;
+using System.Windows.Forms;
 using Atechnology.ecad;
 
 namespace AccountingModule
@@ -19,9 +20,10 @@ namespace AccountingModule
         static string ENCODING_WINDOWS = "Windows";
         
         static string DOCUMENT_TYPE_PAYMENT = "Платежное поручение";
+        static string DOCUMENT_TYPE_ORDER = "Платежный ордер";
         
         public static string PAYMENT_NUMBER = "Номер";
-        public static string PAYMENT_DATE = "Дата";
+        public static string PAYMENT_DATE = "ДатаПоступило";
         public static string PAYMENT_SUM = "Сумма";
         public static string PAYMENT_PAYER_INN = "ПлательщикИНН";
         public static string PAYMENT_PAYER_NAME = "Плательщик1";
@@ -79,7 +81,7 @@ namespace AccountingModule
             }
         }
         
-        public override DataTable RowPaymentTable()
+        public override DataTable PaymentTable()
         {
             return paymentTable;
         }
@@ -129,32 +131,32 @@ namespace AccountingModule
                     if(attr == null)
                         continue;
                     
-                    if(attr[0] == DOCUMENT_START && attr[1] == DOCUMENT_TYPE_PAYMENT)
+                    if(attr[0] == DOCUMENT_START && (attr[1] == DOCUMENT_TYPE_PAYMENT || attr[1] == DOCUMENT_TYPE_ORDER))
                     {
                         row = paymentTable.NewRow();
                     }
-                    else if(attr[0] == PAYMENT_NUMBER)
+                    else if(attr[0] == PAYMENT_NUMBER && row != null)
                     {
                         row[PAYMENT_NUMBER] = (string) attr[1];
                     }
-                    else if(attr[0] == PAYMENT_DATE)
+                    else if(attr[0] == PAYMENT_DATE && row != null)
                     {
                         DateTime dt = new DateTime();
                         DateTime.TryParse(attr[1], out dt);
                         row[PAYMENT_DATE] = dt;
                     }
-                    else if(attr[0] == PAYMENT_SUM)
+                    else if(attr[0] == PAYMENT_SUM && row != null)
                     {
                         Double value;
                         Double.TryParse(attr[1].Replace('.', ','), out value);
                         row[PAYMENT_SUM] = value;
                     }
-                    else if(attr[0] == DOCUMENT_END)
+                    else if(attr[0] == DOCUMENT_END && row != null)
                     {
                         paymentTable.Rows.Add(row);
                         row = null;
                     }
-                    else
+                    else if(row != null)
                     {
                         TakeStringAttr(row, attr);
                     }

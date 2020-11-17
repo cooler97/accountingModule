@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
+using Atechnology.Components;
 using Atechnology.Components.AtLogWatcher;
 using BrightIdeasSoftware;
 
@@ -21,14 +22,16 @@ namespace AccountingModule
         
         ComboBox _dateFilterBox = null;
         TextBoxWithBtn _customerCodeFilterBox = null;
+        ComboBox _ManagerFilterBox = null;
         TextBoxWithBtn _customerNameFilterBox = null;
-        TextBoxWithBtn _accountingSignFilterBox = null;
-        TextBoxWithBtn _docTypeFilter = null;
+        ComboBox _accountingSignFilterBox = null;
+        ComboBox _docTypeFilter = null;
         TextBox _nameDocFilterBox = null;
         
         public ALVColumn _dateColumn;
         
-        public ALVColumn DateColumn {
+        public ALVColumn DateColumn
+        {
             
             get { return _dateColumn; }
             
@@ -36,7 +39,8 @@ namespace AccountingModule
         
         ALVColumn _customerCodeColumn;
         
-        public ALVColumn CustomerCodeColumn {
+        public ALVColumn CustomerCodeColumn
+        {
             
             get { return _customerCodeColumn; }
             
@@ -44,15 +48,26 @@ namespace AccountingModule
         
         ALVColumn _customerNameColumn;
         
-        public ALVColumn CustomerNameColumn {
+        public ALVColumn CustomerNameColumn
+        {
             
             get { return _customerNameColumn; }
             
         }
         
+        ALVColumn _managerNameColumn;
+        
+        public ALVColumn ManagerNameColumn
+        {
+            
+            get { return _managerNameColumn; }
+            
+        }
+        
         ALVColumn _accountingSignColumn;
         
-        public ALVColumn AccountingSignColumn {
+        public ALVColumn AccountingSignColumn
+        {
             
             get { return _accountingSignColumn; }
             
@@ -61,7 +76,8 @@ namespace AccountingModule
         
         ALVColumn _typeDocNameColumn;
         
-        public ALVColumn TypeDocNameColumn {
+        public ALVColumn TypeDocNameColumn
+        {
             
             get { return _typeDocNameColumn; }
             
@@ -69,7 +85,8 @@ namespace AccountingModule
         
         ALVColumn _nameDocColumn;
         
-        public ALVColumn NameDocColumn {
+        public ALVColumn NameDocColumn
+        {
             
             get { return _nameDocColumn; }
             
@@ -96,7 +113,7 @@ namespace AccountingModule
         }
         
         [Category("AccountListView"), TypeConverter("System.Windows.Forms.Panel, System.Design")]
-        public TextBoxWithBtn DocTypeFilter
+        public ComboBox DocTypeFilter
         {
             get
             {
@@ -141,6 +158,21 @@ namespace AccountingModule
         }
         
         [Category("AccountListView"), TypeConverter("System.Windows.Forms.Panel, System.Design")]
+        public ComboBox ManagerFilterBox
+        {
+            get
+            {
+                return _ManagerFilterBox;
+            }
+            
+            set
+            {
+                _ManagerFilterBox = value;
+                _managerNameColumn.FilterControl = _ManagerFilterBox;
+            }
+        }
+        
+        [Category("AccountListView"), TypeConverter("System.Windows.Forms.Panel, System.Design")]
         public TextBoxWithBtn CustomerNameFilterBox
         {
             get
@@ -156,7 +188,7 @@ namespace AccountingModule
         }
         
         [Category("AccountListView"), TypeConverter("System.Windows.Forms.Panel, System.Design")]
-        public TextBoxWithBtn AccountingSignFilterBox
+        public ComboBox AccountingSignFilterBox
         {
             get
             {
@@ -236,6 +268,14 @@ namespace AccountingModule
             _customerNameColumn.Width = 120;
             _customerNameColumn.Tag = 2;
             this.Columns.Add(_customerNameColumn);
+            
+            _managerNameColumn = new ALVColumn();
+            _managerNameColumn.Text = "Менеджер";
+            _managerNameColumn.AspectName = "managername";
+            _managerNameColumn.IsEditable = false;
+            _managerNameColumn.Width = 120;
+            _managerNameColumn.Tag = 2;
+            this.Columns.Add(_managerNameColumn);
             
             _accountingSignColumn = new ALVColumn();
             _accountingSignColumn.Text = "Признак";
@@ -323,37 +363,61 @@ namespace AccountingModule
         
         private bool MatchText(object o)
         {
-            DataRowView rowView = (DataRowView) o;
+            DataRowView rowView = (DataRowView)o;
             DataRow dataRow = rowView.Row;
             
             bool result = true;
             
-            foreach(ALVColumn col in Columns)
+            string str = string.Empty;
+            string filterValue = string.Empty;
+            
+            foreach (ALVColumn col in Columns)
             {
-                if(col.FilterControl == null)
+                if (col == _dateColumn || col.FilterControl == null)
                     continue;
                 
-                result = IsValueStartsWith(dataRow, col);
-                if(result == false)
+                str = dataRow[col.AspectName].ToString();
+                
+                if (col.FilterControl.GetType() == typeof(ComboBox))
+                {
+                    filterValue = (col.FilterControl as ComboBox).Text;
+                    
+                    if(filterValue.Equals(MainForm.COMBOBOX_ITEM_ALL))
+                    {
+                        result = true;
+                    }
+                    else if(filterValue.Equals(DocSign.NO_GRID))
+                    {
+                        result = !IsValueEqual(str, DocSign.GRID);
+                    }
+                    else
+                    {
+                        result = IsValueEqual(str, filterValue);
+                    }
+                }
+                
+                if (col.FilterControl.GetType() == typeof(TextBoxWithBtn) ||
+                    col.FilterControl.GetType() == typeof(TextBox))
+                {
+                    filterValue = (col.FilterControl as TextBox).Text;
+                    result = IsValueStartsWith(str, filterValue);
+                }
+                
+                if (!result)
                     return result;
             }
             
             return true;
         }
         
-        private bool IsValueStartsWith(DataRow row, ALVColumn column)
+        private bool IsValueEqual(string inputString, string filter)
         {
-            string str = row[column.AspectName].ToString();
-            
-            if(column.FilterControl.GetType() == typeof(ComboBox))
-                return true;
-            
-            string filterValue = (column.FilterControl as TextBox).Text;
-            
-            if(!str.StartsWith(filterValue, StringComparison.InvariantCultureIgnoreCase))
-                return false;
-            
-            return true;
+            return (string.IsNullOrEmpty(filter)) ? true : inputString.Equals(filter, StringComparison.InvariantCultureIgnoreCase);
+        }
+        
+        private bool IsValueStartsWith(string inputString, string filter)
+        {
+            return (string.IsNullOrEmpty(filter)) ? true : inputString.StartsWith(filter, StringComparison.InvariantCultureIgnoreCase);
         }
         
         private void GenerateTotalTextBox()
@@ -385,7 +449,7 @@ namespace AccountingModule
         {
             totalDic = new Dictionary<string, double>();
             
-            if(collection == null || collection.Count < 1)
+            if (collection == null || collection.Count < 1)
                 return;
             
             foreach (ALVColumn column in this.Columns)
@@ -410,7 +474,7 @@ namespace AccountingModule
                 foreach (String key in keys)
                 {
                     rowType = rowView.Row[key].GetType();
-                    if ( Utils.IsNumericType(rowType) )
+                    if (Utils.IsNumericType(rowType))
                     {
                         totalDic[key] += Convert.ToDouble(rowView.Row[key]);
                     }
@@ -458,12 +522,12 @@ namespace AccountingModule
             
             base.OnDrawColumnHeader(e);
             
-            if(this.PrimarySortColumn == column)
+            if (this.PrimarySortColumn == column)
             {
                 column.HeaderImageKey = (this.PrimarySortOrder == SortOrder.Ascending) ? "asc" : "desc";
             }
             
-            if(this.SecondarySortColumn == column)
+            if (this.SecondarySortColumn == column)
             {
                 column.HeaderImageKey = (this.SecondarySortOrder == SortOrder.Ascending) ? "asc" : "desc";
             }
@@ -474,7 +538,7 @@ namespace AccountingModule
                 isGeneratedTotalBox = true;
             }
             
-            if(column.FilterControl != null)
+            if (column.FilterControl != null)
             {
                 CalcControlPosition(column.FilterControl, e.Bounds);
             }
@@ -501,35 +565,41 @@ namespace AccountingModule
 
         protected void OnItemsChanged(object sender, ItemsChangedEventArgs e)
         {
-            try{
+            try
+            {
                 GetTotalValues(this.Items);
-            } catch(Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 AtLog.AddMessage(ex.Message + "  \\n\\r " +
                                  ex.StackTrace);
             }
         }
         
-        abstract class TotalBoxFormatter {
+        abstract class TotalBoxFormatter
+        {
             
             public abstract void FormatEvent(object sender, EventArgs e);
             
         }
         
-        class TotalBoxDoubleFormatter : TotalBoxFormatter {
+        class TotalBoxDoubleFormatter : TotalBoxFormatter
+        {
             
             public override void FormatEvent(object sender, EventArgs e)
             {
-                TextBox textBox = (TextBox) sender;
+                TextBox textBox = (TextBox)sender;
                 textBox.Text = string.Format("{0:#,##0.00}", double.Parse(textBox.Text));
             }
             
         }
         
-        class TotalBoxIntFormatter : TotalBoxFormatter {
+        class TotalBoxIntFormatter : TotalBoxFormatter
+        {
             
             public override void FormatEvent(object sender, EventArgs e)
             {
-                TextBox textBox = (TextBox) sender;
+                TextBox textBox = (TextBox)sender;
                 textBox.Text = string.Format("{0:d}", int.Parse(textBox.Text));
             }
             

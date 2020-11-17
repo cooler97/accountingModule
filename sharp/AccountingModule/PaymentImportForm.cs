@@ -23,18 +23,39 @@ namespace AccountingModule
             paymentGridView.CellClick += new DataGridViewCellEventHandler(paymentGridView_CellClick);
         }
         
-        void ToolStripButton1Click(object sender, EventArgs e)
+        void LoadSharpPaymentClick(object sender, EventArgs e)
         {
             openFileDialog.Filter = "Csv file format (*.csv)|*.csv";
             
             if(openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                importStrategies = new PaymentImportCsv(openFileDialog.FileName);
+                importStrategies = new PaymentImportCsv(openFileDialog.FileName, Payment.DOCOPER_CREDIT_ORDER);
                 Import();
+            }
+            
+            DataTable customerTable = accountingDoc.GetCustomerTable(true);
+
+            foreach(DataRow row in importStrategies.PaymentTable().Rows)
+            {
+                
+                DataRow[] findedCustomer = customerTable.Select(
+                    String.Format("code='{0}'", row[PaymentImportCsv.CODE])
+                   );
+                
+                if(findedCustomer.Length == 0)
+                {
+                    row[PaymentImport.IDCUSTOMER_COLUMN] = null;
+                    row[PaymentImport.CUSTOMERNAME_COLUMN] = "НЕ НАЙДЕН";
+                }
+                else
+                {
+                    row[PaymentImport.IDCUSTOMER_COLUMN] = findedCustomer[0][PaymentImport.IDCUSTOMER_COLUMN];
+                    row[PaymentImport.CUSTOMERNAME_COLUMN] = findedCustomer[0][PaymentImport.CUSTOMERNAME_COLUMN];
+                }
             }
         }
         
-        void ToolStripButton2Click(object sender, EventArgs e)
+        void LoadNonCashPaymentClick(object sender, EventArgs e)
         {
             openFileDialog.Filter = "Client bank exchange file format (*.txt)|*.txt";
             
@@ -52,9 +73,9 @@ namespace AccountingModule
                 
                 Import();
 
-                DataTable customerTable = accountingDoc.GetCustomerTable();
+                DataTable customerTable = accountingDoc.GetCustomerTable(false);
 
-                foreach(DataRow row in importStrategies.RowPaymentTable().Rows)
+                foreach(DataRow row in importStrategies.PaymentTable().Rows)
                 {
                     DataRow[] findedCustomer = customerTable.Select(
                         String.Format("inn='{0}'", row[ClientBankExchangeImport.PAYMENT_PAYER_INN])
@@ -77,10 +98,10 @@ namespace AccountingModule
             {
                 importStrategies.ImportPayment();
                 
-                importStrategies.RowPaymentTable().Columns.Add(PaymentImport.IDCUSTOMER_COLUMN, typeof(object));
-                importStrategies.RowPaymentTable().Columns.Add(PaymentImport.CUSTOMERNAME_COLUMN, typeof(object));
+                importStrategies.PaymentTable().Columns.Add(PaymentImport.IDCUSTOMER_COLUMN, typeof(object));
+                importStrategies.PaymentTable().Columns.Add(PaymentImport.CUSTOMERNAME_COLUMN, typeof(object));
                 
-                paymentGridView.DataSource = importStrategies.RowPaymentTable();
+                paymentGridView.DataSource = importStrategies.PaymentTable();
                 
                 paymentGridView.Columns[PaymentImport.IDCUSTOMER_COLUMN].Visible = false;
                 paymentGridView.Columns[PaymentImport.CUSTOMERNAME_COLUMN].HeaderText = "Контрагент";
@@ -94,7 +115,7 @@ namespace AccountingModule
             }
             catch (Exception exp) {
                 AtMessageBox.Show("Произошла ошибка при импортировании платежей, возможно файл имел не верный формат!",
-                                  "Ошибка импортирования",
+                                  "Ошибка импортирования \\n" + exp.Message,
                                   MessageBoxButtons.OK);
                 paymentGridView.DataSource = null;
             }
@@ -132,7 +153,7 @@ namespace AccountingModule
             try
             {
                 
-                foreach(DataRow row in importStrategies.RowPaymentTable().Rows)
+                foreach(DataRow row in importStrategies.PaymentTable().Rows)
                 {
                     if(row[PaymentImport.IDCUSTOMER_COLUMN] == DBNull.Value)
                     {
@@ -150,7 +171,7 @@ namespace AccountingModule
                     paymentGroupId = accountingDoc.AddPaymentGroup(paymentGroupName);
                 }
                 
-                DataTable pTable = importStrategies.RowPaymentTable();
+                DataTable pTable = importStrategies.PaymentTable();
                 
                 AccountValut valut = accountingDoc.BaseValut();
                 
@@ -175,6 +196,28 @@ namespace AccountingModule
         void CancelBtnClick(object sender, EventArgs e)
         {
             this.Close();
+        }
+        
+        void ToolStripButton3Click(object sender, EventArgs e)
+        {
+            openFileDialog.Filter = "Csv file format (*.csv)|*.csv";
+            
+            if(openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                importStrategies = new PaymentImportCsv(openFileDialog.FileName, Payment.DOCOPER_OPENING_BALANCE);
+                Import();
+            }
+        }
+        
+        void ToolStripButton4Click(object sender, EventArgs e)
+        {
+            openFileDialog.Filter = "Csv file format (*.csv)|*.csv";
+            
+            if(openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                importStrategies = new PaymentImportCsv(openFileDialog.FileName, Payment.DOCOPER_OPENING_BALANCE_CASH);
+                Import();
+            }
         }
     }
 }

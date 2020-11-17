@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Text;
+using System.Windows.Forms;
 using Atechnology.ecad;
 
 namespace AccountingModule
@@ -10,16 +11,15 @@ namespace AccountingModule
 
     public class PaymentImportCsv : PaymentImport
     {
-        
         static string DATE = "Дата";
-        static string CODE = "Код";
+        public static string CODE = "Код";
         static string CUSTOMER = "Контрагент";
         static string GRID = "#";
         static string SUM = "Приход";
         static string COMMENT = "Примечание";
         
         public DataColumn DATE_COLUMN = new DataColumn(DATE, typeof(DateTime));
-        public DataColumn CODE_COLUMN = new DataColumn(CODE, typeof(int));
+        public DataColumn CODE_COLUMN = new DataColumn(CODE, typeof(string));
         public DataColumn CUSTOMER_COLUMN = new DataColumn(CUSTOMER, typeof(string));
         public DataColumn GRID_COLUMN = new DataColumn(GRID, typeof(string));
         public DataColumn SM_COLUMN = new DataColumn(SUM, typeof(double));
@@ -31,9 +31,12 @@ namespace AccountingModule
 
         string path;
         
-        public PaymentImportCsv(string path)
+        int paymentDocoper;
+        
+        public PaymentImportCsv(string path, int paymentDocoper)
         {
             this.path = path;
+            this.paymentDocoper = paymentDocoper;
             this.PaymentTableColumns = new [] {DATE_COLUMN,
                 CODE_COLUMN,
                 CUSTOMER_COLUMN,
@@ -46,7 +49,7 @@ namespace AccountingModule
         public override Payment GetPayment(int idPaymentGroup, AccountValut valut, DataRow paymentRow)
         {
             Payment payment = new Payment();
-//            payment.Name = (string) paymentRow[PAYMENT_NUMBER];
+            //            payment.Name = (string) paymentRow[PAYMENT_NUMBER];
             payment.DtCre = (DateTime) paymentRow[DATE];
             payment.DtDoc = (DateTime) paymentRow[DATE];
             payment.IdPeople = Settings.idpeople;
@@ -57,11 +60,11 @@ namespace AccountingModule
             payment.Valut = valut;
             payment.SmBase = (double) paymentRow[SUM];
             payment.IdPaymentDocGroup = idPaymentGroup;
-            payment.IdDocOper = Payment.DOCOPER_CREDIT_ORDER;
+            payment.IdDocOper = this.paymentDocoper;
             return payment;
         }
         
-        public override DataTable RowPaymentTable()
+        public override DataTable PaymentTable()
         {
             return paymentCsv;
         }
@@ -90,13 +93,13 @@ namespace AccountingModule
                     throw new Exception("Не верный формат CSV файла");
                 }
                 
-                int skipRow = 0;
-                
-                while(line != null && skipRow < 1)
-                {
-                    line = reader.ReadLine();
-                    skipRow++;
-                }
+                //                int skipRow = 0;
+//
+                //                while(line != null && skipRow < 1)
+                //                {
+                //                    line = reader.ReadLine();
+                //                    skipRow++;
+                //                }
                 
                 while(line != null)
                 {
@@ -104,15 +107,15 @@ namespace AccountingModule
                     
                     DataRow row = paymentCsv.NewRow();
                     
-                    for(int count = 0; count < paymentCsv.Columns.Count; count++)
+                    for(int index = 0; index < paymentCsv.Columns.Count; index++)
                     {
-                        DataColumn column = PaymentTableColumns[count];
+                        DataColumn column = PaymentTableColumns[index];
                         
                         if(column.DataType == typeof(DateTime))
                         {
                             try
                             {
-                                row[column] = DateTime.Parse(columns[count]);
+                                row[column] = DateTime.Parse(columns[index]);
                             }
                             catch(Exception exp)
                             {
@@ -121,15 +124,29 @@ namespace AccountingModule
                         }
                         else if(column.DataType == typeof(int))
                         {
-                            row[column] = Int32.Parse(columns[count]);
+                            row[column] = Int32.Parse(columns[index]);
                         }
                         else if(column.DataType == typeof(double))
                         {
-                            row[column] = Double.Parse(columns[count]);
+                            row[column] = Double.Parse(columns[index]);
                         }
                         else
                         {
-                            row[column] = (string) columns[count];
+                            if(column == CODE_COLUMN)
+                            {
+                                try
+                                {
+                                    row[column] = String.Format("{0:000}", Int32.Parse(columns[index]));
+                                }
+                                catch(FormatException formatException)
+                                {
+                                    MessageBox.Show(formatException.Message);
+                                }
+                            }
+                            else
+                            {
+                                row[column] =(string)columns[index];
+                            }
                         }
                     }
                     

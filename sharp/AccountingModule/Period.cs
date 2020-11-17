@@ -29,7 +29,7 @@ namespace AccountingModule
         public DateTime ToDate {
             
             get {
-                return periodForm.DateTime2.AddDays(1).Date;
+                return periodForm.DateTime2.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
             }
             
         }

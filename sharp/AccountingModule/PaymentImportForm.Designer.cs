@@ -22,6 +22,9 @@ namespace AccountingModule
         private System.Windows.Forms.ToolStripButton toolStripButton1;
         private System.Windows.Forms.ToolStripButton toolStripButton2;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripButton toolStripButton3;
+        private System.Windows.Forms.ToolStripButton toolStripButton4;
         
         /// <summary>
         /// Disposes resources used by the form.
@@ -52,6 +55,9 @@ namespace AccountingModule
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
             this.paymentGridView = new System.Windows.Forms.DataGridView();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -63,16 +69,16 @@ namespace AccountingModule
             this.panel1.Controls.Add(this.AcceptBtn);
             this.panel1.Controls.Add(this.CancelBtn);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 482);
+            this.panel1.Location = new System.Drawing.Point(0, 444);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(991, 46);
+            this.panel1.Size = new System.Drawing.Size(975, 46);
             this.panel1.TabIndex = 0;
             // 
             // AcceptBtn
             // 
             this.AcceptBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.AcceptBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.AcceptBtn.Location = new System.Drawing.Point(790, 11);
+            this.AcceptBtn.Location = new System.Drawing.Point(774, 11);
             this.AcceptBtn.Name = "AcceptBtn";
             this.AcceptBtn.Size = new System.Drawing.Size(108, 23);
             this.AcceptBtn.TabIndex = 1;
@@ -84,7 +90,7 @@ namespace AccountingModule
             // 
             this.CancelBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.CancelBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.CancelBtn.Location = new System.Drawing.Point(904, 11);
+            this.CancelBtn.Location = new System.Drawing.Point(888, 11);
             this.CancelBtn.Name = "CancelBtn";
             this.CancelBtn.Size = new System.Drawing.Size(75, 23);
             this.CancelBtn.TabIndex = 0;
@@ -99,10 +105,13 @@ namespace AccountingModule
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripButton1,
             this.toolStripSeparator1,
-            this.toolStripButton2});
+            this.toolStripButton2,
+            this.toolStripSeparator2,
+            this.toolStripButton3,
+            this.toolStripButton4});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(991, 35);
+            this.toolStrip1.Size = new System.Drawing.Size(975, 35);
             this.toolStrip1.TabIndex = 2;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -113,7 +122,7 @@ namespace AccountingModule
             this.toolStripButton1.Name = "toolStripButton1";
             this.toolStripButton1.Size = new System.Drawing.Size(122, 32);
             this.toolStripButton1.Text = "Импорт из CSV";
-            this.toolStripButton1.Click += new System.EventHandler(this.ToolStripButton1Click);
+            this.toolStripButton1.Click += new System.EventHandler(this.LoadSharpPaymentClick);
             // 
             // toolStripSeparator1
             // 
@@ -127,7 +136,32 @@ namespace AccountingModule
             this.toolStripButton2.Name = "toolStripButton2";
             this.toolStripButton2.Size = new System.Drawing.Size(176, 32);
             this.toolStripButton2.Text = "Импорт из клиент-банка";
-            this.toolStripButton2.Click += new System.EventHandler(this.ToolStripButton2Click);
+            this.toolStripButton2.Click += new System.EventHandler(this.LoadNonCashPaymentClick);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(6, 35);
+            // 
+            // toolStripButton3
+            // 
+            this.toolStripButton3.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripButton3.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton3.Image")));
+            this.toolStripButton3.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton3.Name = "toolStripButton3";
+            this.toolStripButton3.Size = new System.Drawing.Size(154, 32);
+            this.toolStripButton3.Text = "Начальное сальдо безнал";
+            this.toolStripButton3.Click += new System.EventHandler(this.ToolStripButton3Click);
+            // 
+            // toolStripButton4
+            // 
+            this.toolStripButton4.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripButton4.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton4.Image")));
+            this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton4.Name = "toolStripButton4";
+            this.toolStripButton4.Size = new System.Drawing.Size(123, 32);
+            this.toolStripButton4.Text = "Начальное сальдо #";
+            this.toolStripButton4.Click += new System.EventHandler(this.ToolStripButton4Click);
             // 
             // paymentGridView
             // 
@@ -138,18 +172,18 @@ namespace AccountingModule
             this.paymentGridView.Location = new System.Drawing.Point(0, 35);
             this.paymentGridView.Name = "paymentGridView";
             this.paymentGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.paymentGridView.Size = new System.Drawing.Size(991, 447);
+            this.paymentGridView.Size = new System.Drawing.Size(975, 409);
             this.paymentGridView.TabIndex = 3;
             // 
             // PaymentImportForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(975, 490);
             this.Controls.Add(this.paymentGridView);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.panel1);
             this.Name = "PaymentImportForm";
-            this.Size = new System.Drawing.Size(991, 528);
             this.Text = "Импорт платежей";
             this.panel1.ResumeLayout(false);
             this.toolStrip1.ResumeLayout(false);

@@ -20,6 +20,8 @@ namespace AccountingModule
         
         private DataTable AccountingView {get; set;}
         
+        public DataTable PeopleTable;
+        
         private AccountListView view;
 
         public AccountingDoc()
@@ -31,6 +33,7 @@ namespace AccountingModule
             this.db = db;
             this.view = view;
             this.AccountingView = new DataTable();
+            this.PeopleTable = new DataTable();
             
             try
             {
@@ -39,7 +42,8 @@ namespace AccountingModule
                 {
                     this.FillAccountingTable(filterParam);
                     this.view.DataSource = AccountingView;
-//                    this.view.AutoSizeColumn();
+                    FillPeopleTable();
+                    //                    this.view.AutoSizeColumn();
                 }
                 else
                 {
@@ -50,6 +54,39 @@ namespace AccountingModule
             {
                 AtLog.AddMessage(e.ToString());
             }
+        }
+        
+        public void UpdatePeople(DataRow dr, int idpeople)
+        {
+            db.command.CommandText = String.Format("update accounting set idpeople = {0} where idaccounting = {1}",
+                                                   idpeople,
+                                                   dr["idaccounting"]);
+            AtLog.AddMessage(db.command.CommandText);
+            db.OpenDB();
+            db.command.ExecuteNonQuery();
+            db.CloseDB();
+        }
+        
+        public DataRow GetOrderDataRowById(int orderId)
+        {
+            DataTable orders = new DataTable();
+            db.command.CommandText = String.Format("select top 1 * from view_orders where idorder = {0}", orderId);
+            db.OpenDB();
+            db.adapter.Fill(orders);
+            db.CloseDB();
+            
+            if(orders.Rows[0] == null)
+                return null;
+            
+            return orders.Rows[0];
+        }
+        
+        public void FillPeopleTable()
+        {
+            db.command.CommandText = "select * from view_accounting_people order by lastname";
+            db.OpenDB();
+            db.adapter.Fill(PeopleTable);
+            db.CloseDB();
         }
         
         public void FillAccountingTable(FilterParam filterParam)
@@ -63,7 +100,7 @@ namespace AccountingModule
                             "dtdoc, typedoc, typedocname, namedoc, " +
                             "quconstr, idsign, smorder, smdoc, deleted, " +
                             "comment, name, accountingsign, " +
-                            "customername, customercode")
+                            "customername, customercode, managername, idpeople, idpaymentdoc")
                     .FROM("view_accounting")
                     .WHERE(" dtdoc BETWEEN '{0}' AND '{1}' ", new object[] {
                                filterParam.dateFrom.ToString(),
@@ -135,15 +172,35 @@ namespace AccountingModule
             }
         }
         
-        public DataTable GetCustomerTable()
+        public DataTable GetCustomerTable(bool onlyMain)
         {
             if(db == null)
                 throw new ArgumentNullException("DB connection is null!");
             
             DataTable result = new DataTable();
             
-            string sql = "SELECT idcustomer, name as customer_name, inn " +
-                "FROM customer WHERE deleted IS NULL AND inn IS NOT NULL";
+            string sql = "";
+            
+            if(onlyMain)
+            {
+                sql = "SELECT "
+                    + " c.idcustomer, "
+                    + " c.name as customer_name, "
+                    + " c.name2 as code "
+                    + "FROM "
+                    + " customer c LEFT JOIN "
+                    + " customersign cs ON c.idcustomer = cs.idcustomer "
+                    + "WHERE "
+                    + " c.deleted IS NULL AND "
+                    + " c.name2 <> '' AND "
+                    + " cs.idsign = 102 AND "
+                    + " cs.deleted IS NULL";
+            }
+            else
+            {
+                sql = "SELECT idcustomer, name as customer_name, inn " +
+                    "FROM customer WHERE deleted IS NULL AND inn IS NOT NULL";
+            }
             
             AtLog.AddMessage(sql);
             

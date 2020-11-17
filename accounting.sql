@@ -16,3 +16,7 @@ CREATE TABLE accounting (
 
 INSERT INTO generator(idgen, name, num, updatelevel, replicatetype, isdiler, isremoteoffice, shift)
 VALUES(327, 'gen_accounting', 1, 0, 0, 0, 0, 0);
+
+
+  insert into generator (idgen, name, num, updatelevel, replicatetype, isdiler, isremoteoffice, shift)
+	values(329, 'gen_accountingpayment', 1, 0,0,0,0,0)

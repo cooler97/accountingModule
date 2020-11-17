@@ -11,7 +11,7 @@ namespace AccountingModule
         
         public abstract void  ImportPayment();
         
-        public abstract DataTable RowPaymentTable();
+        public abstract DataTable PaymentTable();
         
         public abstract Payment GetPayment(int idPaymentGroup, AccountValut valut, DataRow paymentRow);
     }

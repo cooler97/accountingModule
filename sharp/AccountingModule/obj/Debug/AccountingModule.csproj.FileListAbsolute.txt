@@ -90,3 +90,4 @@ C:\develop\accountingModule\sharp\AccountingModule\bin\Debug\ObjectListView.dll
 C:\develop\accountingModule\sharp\AccountingModule\obj\Debug\AccountingModule.PaymentImportForm.resources
 C:\develop\accountingModule\sharp\AccountingModule\bin\Debug\AccountingModule.dll
 C:\develop\accountingModule\sharp\AccountingModule\obj\Debug\AccountingModule.dll
+C:\develop\accountingModule\sharp\AccountingModule\obj\Debug\AccountingModule.СlosePeriodForm.resources

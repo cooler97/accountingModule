@@ -73,7 +73,13 @@
       <HintPath>lib\ObjectListView.dll</HintPath>
     </Reference>
     <Reference Include="SandDock">
-      <HintPath>..\..\..\..\..\..\Program Files %28x86%29\Atechnology\SandDock.dll</HintPath>
+      <HintPath>..\..\..\..\Program Files %28x86%29\Atechnology\SandDock.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Base">
+      <HintPath>..\..\..\..\Program Files %28x86%29\Atechnology\Stimulsoft.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Report">
+      <HintPath>..\..\..\..\Program Files %28x86%29\Atechnology\Stimulsoft.Report.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -89,6 +95,10 @@
     <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccountingClosePeriodForm.cs" />
+    <Compile Include="AccountingClosePeriodForm.Designer.cs">
+      <DependentUpon>AccountingClosePeriodForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="AccountingDoc.cs" />
     <Compile Include="AccountingTable.cs" />
     <Compile Include="AccountListView.cs" />
@@ -96,6 +106,7 @@
     <Compile Include="ALVColumn.cs" />
     <Compile Include="ClassLoader.cs" />
     <Compile Include="ClientBankExchangeImport.cs" />
+    <Compile Include="DocSign.cs" />
     <Compile Include="DocType.cs" />
     <Compile Include="DropDownDocumentForm.cs" />
     <Compile Include="DropDownDocumentForm.Designer.cs">
@@ -125,6 +136,9 @@
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="AccountingClosePeriodForm.resx">
+      <DependentUpon>AccountingClosePeriodForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="DropDownDocumentForm.resx">
       <DependentUpon>DropDownDocumentForm.cs</DependentUpon>
     </EmbeddedResource>
