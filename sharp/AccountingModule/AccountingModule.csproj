@@ -19,6 +19,7 @@
     <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
     <WarningLevel>4</WarningLevel>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -66,9 +67,6 @@
     <Reference Include="Atechnology.winDraw">
       <HintPath>..\..\..\..\..\..\Program Files %28x86%29\Atechnology\Atechnology.winDraw.dll</HintPath>
     </Reference>
-    <Reference Include="DbExtensions">
-      <HintPath>lib\DbExtensions.dll</HintPath>
-    </Reference>
     <Reference Include="ObjectListView">
       <HintPath>lib\ObjectListView.dll</HintPath>
     </Reference>
@@ -92,66 +90,62 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AccountingClosePeriodForm.cs" />
-    <Compile Include="AccountingClosePeriodForm.Designer.cs">
+    <Compile Include="Core\AccountingDoc.cs" />
+    <Compile Include="Core\AccountingTable.cs" />
+    <Compile Include="Core\AccountListView.cs" />
+    <Compile Include="Core\ALVColumn.cs" />
+    <Compile Include="Core\Payment.cs" />
+    <Compile Include="Filtering\BaseColumnFilterStrategy.cs" />
+    <Compile Include="Filtering\CheckColumnFilterStrategy.cs" />
+    <Compile Include="Filtering\TextColumnFilterStrategy.cs" />
+    <Compile Include="Forms\AccountingClosePeriodForm.cs" />
+    <Compile Include="Forms\AccountingClosePeriodForm.Designer.cs">
       <DependentUpon>AccountingClosePeriodForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="AccountingDoc.cs" />
-    <Compile Include="AccountingTable.cs" />
-    <Compile Include="AccountListView.cs" />
-    <Compile Include="AccountValut.cs" />
-    <Compile Include="ALVColumn.cs" />
-    <Compile Include="ClassLoader.cs" />
-    <Compile Include="ClientBankExchangeImport.cs" />
-    <Compile Include="DocSign.cs" />
-    <Compile Include="DocType.cs" />
-    <Compile Include="DropDownDocumentForm.cs" />
-    <Compile Include="DropDownDocumentForm.Designer.cs">
-      <DependentUpon>DropDownDocumentForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="FilterForm.cs" />
-    <Compile Include="FilterForm.Designer.cs">
-      <DependentUpon>FilterForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="FilterParam.cs" />
-    <Compile Include="PaymentImport.cs" />
-    <Compile Include="MainForm.cs" />
-    <Compile Include="MainForm.Designer.cs">
+    <Compile Include="Forms\MainForm.cs" />
+    <Compile Include="Forms\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Payment.cs" />
-    <Compile Include="PaymentImportCsv.cs" />
-    <Compile Include="PaymentImportForm.cs" />
-    <Compile Include="PaymentImportForm.Designer.cs">
+    <Compile Include="Forms\PaymentImportForm.cs" />
+    <Compile Include="Forms\PaymentImportForm.Designer.cs">
       <DependentUpon>PaymentImportForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Period.cs" />
+    <Compile Include="Payment\ClientBankExchangeImport.cs" />
+    <Compile Include="Payment\PaymentImport.cs" />
+    <Compile Include="Payment\PaymentImportCsv.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReportUtil.cs" />
-    <Compile Include="TextBoxWithBtn.cs" />
-    <Compile Include="Utils.cs" />
+    <Compile Include="Utils\AccountSettings.cs" />
+    <Compile Include="Utils\AccountValut.cs" />
+    <Compile Include="Utils\ClassLoader.cs" />
+    <Compile Include="Utils\ColorHightLightRenderer.cs" />
+    <Compile Include="Utils\DocSign.cs" />
+    <Compile Include="Utils\DocType.cs" />
+    <Compile Include="Utils\FilterParam.cs" />
+    <Compile Include="Utils\Period.cs" />
+    <Compile Include="Utils\ReportUtil.cs" />
+    <Compile Include="Utils\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="AccountingClosePeriodForm.resx">
+    <EmbeddedResource Include="Forms\AccountingClosePeriodForm.resx">
       <DependentUpon>AccountingClosePeriodForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="DropDownDocumentForm.resx">
-      <DependentUpon>DropDownDocumentForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FilterForm.resx">
-      <DependentUpon>FilterForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="icons.resx" />
-    <EmbeddedResource Include="MainForm.resx">
+    <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="PaymentImportForm.resx">
+    <EmbeddedResource Include="Forms\PaymentImportForm.resx">
       <DependentUpon>PaymentImportForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="icons.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Forms" />
+    <Folder Include="Core" />
+    <Folder Include="Filtering" />
+    <Folder Include="Payment" />
+    <Folder Include="Utils" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

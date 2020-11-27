@@ -5,7 +5,6 @@ using System.Data;
 using System.Data.SqlClient;
 using Atechnology.Components.AtLogWatcher;
 using Atechnology.DBConnections2;
-using DbExtensions;
 
 namespace AccountingModule
 {
@@ -43,7 +42,6 @@ namespace AccountingModule
                     this.FillAccountingTable(filterParam);
                     this.view.DataSource = AccountingView;
                     FillPeopleTable();
-                    //                    this.view.AutoSizeColumn();
                 }
                 else
                 {
@@ -95,31 +93,31 @@ namespace AccountingModule
             {
                 AccountingView.Clear();
                 
-                var query = new SqlBuilder()
-                    .SELECT("idaccounting, idorder, idcustomer, " +
-                            "dtdoc, typedoc, typedocname, namedoc, " +
-                            "quconstr, idsign, smorder, smdoc, deleted, " +
-                            "comment, name, accountingsign, " +
-                            "customername, customercode, managername, idpeople, idpaymentdoc")
-                    .FROM("view_accounting")
-                    .WHERE(" dtdoc BETWEEN '{0}' AND '{1}' ", new object[] {
-                               filterParam.dateFrom.ToString(),
-                               filterParam.dateTo.ToString()
-                           }
-                          );
-                
-                db.command.CommandText = String.Format(query.ToString(), ToGenericArray(query.ParameterValues));
+                db.command.CommandText = String.Format("SELECT " +
+                                             "idaccounting, idorder, idcustomer, " +
+                                             "dtdoc, typedoc, typedocname, namedoc, " +
+                                             "quconstr, idsign, smorder, smdoc, deleted, " +
+                                             "comment, name, accountingsign, " +
+                                             "customername, customercode, managername, " +
+                                             "idpeople, idpaymentdoc, sale " +
+                                             "FROM view_accounting " +
+                                             "WHERE dtdoc BETWEEN '{0}' AND '{1}' ",
+                                             filterParam.dateFrom,
+                                             filterParam.dateTo);
 
                 string debugSQL = db.command.CommandText;
+                
                 foreach (SqlParameter param in db.command.Parameters)
                 {
                     debugSQL = debugSQL.Replace(param.ParameterName, param.Value.ToString());
                 }
+                
                 AtLog.AddMessage(debugSQL);
                 
                 db.OpenDB();
                 db.adapter.Fill(AccountingView);
                 db.CloseDB();
+                
                 AccountingView.AcceptChanges();
                 
             } catch(Exception e) {
@@ -152,14 +150,15 @@ namespace AccountingModule
             
             try
             {
-                var query = new SqlBuilder()
-                    .UPDATE("accounting SET comment = '{0}'")
-                    .WHERE("idaccounting = {1}");
+                string query = "UPDATE accounting SET comment = '{0}' " +
+                    "WHERE idaccounting = {1}";
                 
                 string sql = "";
+                
                 DataTable dt = AccountingView.GetChanges();
+                
                 foreach(DataRow dr in dt.Rows){
-                    sql = String.Format(query.ToString(), dr["comment"], dr["idaccounting"]);
+                    sql = String.Format(query, dr["comment"], dr["idaccounting"]);
                     AtLog.AddMessage(sql);
                     db.Exec(sql, false);
                 }

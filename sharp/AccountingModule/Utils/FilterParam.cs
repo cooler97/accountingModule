@@ -2,13 +2,13 @@
 
 namespace AccountingModule
 {
-
     public class FilterParam
     {
         public string customerName {get; set;}
         public string customerCode {get; set;}
         
-        private DateTime _dateFrom;
+        DateTime _dateFrom;
+        
         public DateTime dateFrom {
             get {
                 return _dateFrom;
@@ -17,7 +17,8 @@ namespace AccountingModule
             set { _dateFrom = value; }
         }
         
-        private DateTime _dateTo;
+        DateTime _dateTo;
+        
         public DateTime dateTo {
             get {
                 return _dateTo;

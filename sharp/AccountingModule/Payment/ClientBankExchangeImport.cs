@@ -10,17 +10,17 @@ namespace AccountingModule
 
     public class ClientBankExchangeImport : PaymentImport
     {
-        static string FILE_HEADER = "1CClientBankExchange";
-        static string FILE_END = "КонецФайла";
+        const string FILE_HEADER = "1CClientBankExchange";
+        const string FILE_END = "КонецФайла";
         
-        static string FORMAT_VERSION = "ВерсияФормата";
-        static string VERSION = "1.02";
+        const string FORMAT_VERSION = "ВерсияФормата";
+        const string VERSION = "1.02";
 
-        static string FILE_ENCODING = "Кодировка";
-        static string ENCODING_WINDOWS = "Windows";
+        const string FILE_ENCODING = "Кодировка";
+        const string ENCODING_WINDOWS = "Windows";
         
-        static string DOCUMENT_TYPE_PAYMENT = "Платежное поручение";
-        static string DOCUMENT_TYPE_ORDER = "Платежный ордер";
+        const string DOCUMENT_TYPE_PAYMENT = "Платежное поручение";
+        const string DOCUMENT_TYPE_ORDER = "Платежный ордер";
         
         public static string PAYMENT_NUMBER = "Номер";
         public static string PAYMENT_DATE = "ДатаПоступило";
@@ -30,12 +30,12 @@ namespace AccountingModule
         public static string PAYMENT_RECIPIENT_INN = "ПолучательИНН";
         public static string PAYMENT_DESCRIPTION = "НазначениеПлатежа";
         
-        static string DOCUMENT_START = "СекцияДокумент";
-        static string DOCUMENT_END = "КонецДокумента";
+        const string DOCUMENT_START = "СекцияДокумент";
+        const string DOCUMENT_END = "КонецДокумента";
         
-        static char DELIMETER = '=';
+        const char DELIMETER = '=';
         
-        string[] PAYMENT_ATTR_STRING = new string[] {
+        readonly string[] PAYMENT_ATTR_STRING = {
             PAYMENT_PAYER_INN,
             PAYMENT_PAYER_NAME,
             PAYMENT_RECIPIENT_INN,
@@ -43,14 +43,20 @@ namespace AccountingModule
         };
         
         public DataColumn DATE_COLUMN = new DataColumn(PAYMENT_DATE, typeof(DateTime));
+        
         public DataColumn NUMBER_COLUMN = new DataColumn(PAYMENT_NUMBER, typeof(string));
+        
         public DataColumn PAYER_INN_COLUMN = new DataColumn(PAYMENT_PAYER_INN, typeof(string));
+        
         public DataColumn PAYER_NAME_COLUMN = new DataColumn(PAYMENT_PAYER_NAME, typeof(string));
+        
         public DataColumn RECIPIENT_INN_COLUMN = new DataColumn(PAYMENT_RECIPIENT_INN, typeof(string));
+        
         public DataColumn SUM_COLUMN = new DataColumn(PAYMENT_SUM, typeof(double));
+        
         public DataColumn DESCRIPTION_COLUMN = new DataColumn(PAYMENT_DESCRIPTION, typeof(string));
         
-        private DataTable paymentTable;
+        DataTable paymentTable;
         
         DataColumn[] PaymentTableColumns;
 
@@ -176,7 +182,7 @@ namespace AccountingModule
             
         }
         
-        private bool TakeStringAttr(DataRow row, string[] attr)
+        bool TakeStringAttr(DataRow row, string[] attr)
         {
             for(int count = 0; count < PAYMENT_ATTR_STRING.Length; count++)
             {

@@ -1,41 +1,64 @@
 ﻿using System;
-using System.Data;
-using System.Globalization;
 using System.Windows.Forms;
 using BrightIdeasSoftware;
 
 namespace AccountingModule
 {
-
     public class ALVColumn : OLVColumn
-    {
+    {        
+        bool _showSelected;
         
-        private bool _showTotal;
+        bool _showTotal;
         
-        private bool _calcBalance;
+        bool _calcBalance;
         
-        private bool _isColumnWidthChanged = false;
+        bool _isPositionChanged;
         
-        public bool IsColumnWidthChanged
+        BaseColumnFilterStrategy _filteringStrategy;
+        
+        public BaseColumnFilterStrategy FilteringStrategy
         {
-            
             get
             {
-                return _isColumnWidthChanged;
+                return _filteringStrategy;
             }
             
             set
             {
-                _isColumnWidthChanged = value;
+                _filteringStrategy = value;
             }
-            
         }
         
-        private TextBox _textBox;
+        public bool isPositionChanged
+        {
+            get
+            {
+                return _isPositionChanged;
+            }
+            
+            set
+            {
+                _isPositionChanged = value;
+            }
+        }
+        
+        TextBox _textBox;
+        
+        TextBox _selectedTextBox;
+        
+        public bool ShowSelected 
+        {
+            get {
+                return _showSelected;
+            }
+            
+            set {
+                _showSelected = value;
+            }
+        }
         
         public bool ShowTotal
-        {
-            
+        {            
             get
             {
                 return _showTotal;
@@ -75,7 +98,18 @@ namespace AccountingModule
             
         }
         
-        private Control _filterControl = null;
+        public TextBox SelectedBox
+        {
+            get {
+                return _selectedTextBox;
+            }
+            
+            set {
+                _selectedTextBox = value;
+            }
+        }
+        
+        Control _filterControl;
         
         public Control FilterControl
         {
@@ -92,11 +126,7 @@ namespace AccountingModule
         
         public ALVColumn()
         {
-
-        }
-        
+        }        
 
     }
-
-
 }

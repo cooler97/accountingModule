@@ -23,6 +23,7 @@ namespace AccountingModule
             Columns.Add(new DataColumn("smdoc", typeof(double)));         
             Columns.Add(new DataColumn("deleted", typeof(DateTime)));
             Columns.Add(new DataColumn("comment", typeof(string)));
+            Columns.Add(new DataColumn("sale", typeof(bool)));
             
             PrimaryKey = new DataColumn[] { primary };
         }

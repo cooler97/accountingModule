@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Text;
@@ -8,7 +7,6 @@ using Atechnology.ecad;
 
 namespace AccountingModule
 {
-
     public class PaymentImportCsv : PaymentImport
     {
         static string DATE = "Дата";
@@ -154,8 +152,7 @@ namespace AccountingModule
                     
                     paymentCsv.Rows.Add(row);
                 }
-            }
-            
+            }            
         }
     }
 }

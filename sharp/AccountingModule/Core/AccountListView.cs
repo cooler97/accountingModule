@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.ComponentModel;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
-using Atechnology.Components;
 using Atechnology.Components.AtLogWatcher;
 using BrightIdeasSoftware;
 
@@ -12,29 +12,51 @@ namespace AccountingModule
 {
     public class AccountListView : FastDataListView
     {
-        Dictionary<string, double> totalDic;
+        public static readonly string COLUMN_NAME_DATE = "Date";
+        public static readonly string COLUMN_NAME_CUSTOMER_CODE = "CustomerCode";
+        public static readonly string COLUMN_NAME_CUSTOMER_NAME = "CustomerName";
+        public static readonly string COLUMN_NAME_MANAGER_NAME = "ManagerName";
+        public static readonly string COLUMN_NAME_ACCOUNTING_SIGN_NAME = "AccountingSignName";
+        public static readonly string COLUMN_NAME_TYPE_DOC_NAME = "TypeDocName";
+        public static readonly string COLUMN_NAME_DOC_NAME = "DocName";
+        public static readonly string COLUMN_NAME_QU_CONSTR = "QuConstrName";
+        public static readonly string COLUMN_NAME_SM_ORDER = "SmOrderName";
+        public static readonly string COLUMN_NAME_SM_DOC = "SmDocName";
+        public static readonly string COLUMN_NAME_IS_SALE = "IsSaleName";
+        public static readonly string COLUMN_NAME_COMMENT = "CommentName";
         
-        ALVColumn _balanceColumn = null;
+        ColorHightLightRenderer renderer = new ColorHightLightRenderer();
         
-        Panel _totalPanel = null;
+        public ColorHightLightRenderer Renderer {
+            
+            get {
+                return renderer;
+            }
+            
+        }
         
-        bool isGeneratedTotalBox = false;
+        Dictionary<string, double> totalDic = new Dictionary<string, double>();
         
-        ComboBox _dateFilterBox = null;
-        TextBoxWithBtn _customerCodeFilterBox = null;
-        ComboBox _ManagerFilterBox = null;
-        TextBoxWithBtn _customerNameFilterBox = null;
-        ComboBox _accountingSignFilterBox = null;
-        ComboBox _docTypeFilter = null;
-        TextBox _nameDocFilterBox = null;
+        Dictionary<string, double> selectedDic = new Dictionary<string, double>();
+        
+        ALVColumn _balanceColumn;
+        
+        Panel _totalPanel;
+
+        ComboBox _dateFilterBox;
+        TextBox _customerCodeFilterBox ;
+        ComboBox _ManagerFilterBox;
+        TextBox _customerNameFilterBox;
+        ComboBox _accountingSignFilterBox;
+        ComboBox _saleFilterBox;
+        ComboBox _docTypeFilter;
+        TextBox _nameDocFilterBox;
         
         public ALVColumn _dateColumn;
         
         public ALVColumn DateColumn
         {
-            
             get { return _dateColumn; }
-            
         }
         
         ALVColumn _customerCodeColumn;
@@ -96,6 +118,7 @@ namespace AccountingModule
         ALVColumn _smOrderColumn;
         ALVColumn _smDocColumn;
         ALVColumn _commentColumn;
+        ALVColumn _saleColumn;
         
         [Category("AccountListView"), TypeConverter("System.Windows.Forms.Panel, System.Design")]
         public ComboBox DateFilter
@@ -143,7 +166,7 @@ namespace AccountingModule
         }
         
         [Category("AccountListView"), TypeConverter("System.Windows.Forms.Panel, System.Design")]
-        public TextBoxWithBtn CustomerCodeFilterBox
+        public TextBox CustomerCodeFilterBox
         {
             get
             {
@@ -173,7 +196,7 @@ namespace AccountingModule
         }
         
         [Category("AccountListView"), TypeConverter("System.Windows.Forms.Panel, System.Design")]
-        public TextBoxWithBtn CustomerNameFilterBox
+        public TextBox CustomerNameFilterBox
         {
             get
             {
@@ -199,6 +222,21 @@ namespace AccountingModule
             {
                 _accountingSignFilterBox = value;
                 _accountingSignColumn.FilterControl = _accountingSignFilterBox;
+            }
+        }
+        
+        [Category("AccountListView"), TypeConverter("System.Windows.Forms.Panel, System.Design")]
+        public ComboBox SaleFilterBox
+        {
+            get
+            {
+                return _saleFilterBox;
+            }
+            
+            set
+            {
+                _saleFilterBox = value;
+                _saleColumn.FilterControl = value;
             }
         }
         
@@ -236,48 +274,92 @@ namespace AccountingModule
             
         }
         
+        Panel _selectPanel = null;
+        
+        [Category("AccountListView"), TypeConverter("System.Windows.Forms.Panel, System.Design")]
+        public Panel SelectPanel
+        {
+            
+            get
+            {
+                return _selectPanel;
+            }
+            
+            set
+            {
+                _selectPanel = value;
+            }
+            
+        }
+        
+        Label totalSelectLabel = null;
+        
+        [Category("AccountListView"), TypeConverter("System.Windows.Forms.Panel, System.Design")]
+        public Label TotalSelectLabel
+        {
+            
+            get
+            {
+                return totalSelectLabel;
+            }
+            
+            set
+            {
+                totalSelectLabel = value;
+            }
+            
+        }
+        
         public AccountListView()
         {
-            this.ItemsChanged += new System.EventHandler<BrightIdeasSoftware.ItemsChangedEventArgs>(this.OnItemsChanged);
+            this.ItemsChanged += OnItemsChanged;
+
+            this.DefaultRenderer = renderer;
             
             _dateColumn = new ALVColumn();
+            _dateColumn.Name = COLUMN_NAME_DATE;
             _dateColumn.Text = "Дата";
             _dateColumn.AspectName = "dtdoc";
             _dateColumn.IsEditable = false;
-            //            _dateColumn.ClusteringStrategy =
-            //                new DateTimeClusteringStrategy(DateTimePortion.Year | DateTimePortion.Month, "MMMM yyyy");
             _dateColumn.Width = 140;
             _dateColumn.UseFiltering = false;
-            _dateColumn.AspectToStringFormat = "{0:g}";
+            _dateColumn.AspectToStringFormat = "{0:d}";
             _dateColumn.Tag = 1;
             this.Columns.Add(_dateColumn);
             this.PrimarySortColumn = _dateColumn;
             
             _customerCodeColumn = new ALVColumn();
+            _customerCodeColumn.Name = COLUMN_NAME_CUSTOMER_CODE;
             _customerCodeColumn.Text = "№";
             _customerCodeColumn.AspectName = "customercode";
             _customerCodeColumn.IsEditable = false;
             _customerCodeColumn.Width = 100;
             _customerCodeColumn.Tag = 1;
+            _customerCodeColumn.FilteringStrategy = new TextColumnFilterStrategy(_customerCodeColumn, false);
             this.Columns.Add(_customerCodeColumn);
             
             _customerNameColumn = new ALVColumn();
+            _customerNameColumn.Name = COLUMN_NAME_CUSTOMER_NAME;
             _customerNameColumn.Text = "Плательщик";
             _customerNameColumn.AspectName = "customername";
             _customerNameColumn.IsEditable = false;
             _customerNameColumn.Width = 120;
             _customerNameColumn.Tag = 2;
+            _customerNameColumn.FilteringStrategy = new TextColumnFilterStrategy(_customerNameColumn, false);
             this.Columns.Add(_customerNameColumn);
             
             _managerNameColumn = new ALVColumn();
+            _managerNameColumn.Name = COLUMN_NAME_MANAGER_NAME;
             _managerNameColumn.Text = "Менеджер";
             _managerNameColumn.AspectName = "managername";
             _managerNameColumn.IsEditable = false;
             _managerNameColumn.Width = 120;
             _managerNameColumn.Tag = 2;
+            _managerNameColumn.FilteringStrategy = new TextColumnFilterStrategy(_managerNameColumn, false);
             this.Columns.Add(_managerNameColumn);
             
             _accountingSignColumn = new ALVColumn();
+            _accountingSignColumn.Name = COLUMN_NAME_ACCOUNTING_SIGN_NAME;
             _accountingSignColumn.Text = "Признак";
             _accountingSignColumn.AspectName = "accountingsign";
             _accountingSignColumn.IsEditable = false;
@@ -285,15 +367,32 @@ namespace AccountingModule
             _accountingSignColumn.Width = 100;
             _accountingSignColumn.IsHeaderVertical = true;
             _accountingSignColumn.Tag = 1;
+            _accountingSignColumn.FilteringStrategy = new TextColumnFilterStrategy(_accountingSignColumn, true);
             this.Columns.Add(_accountingSignColumn);
             
+            _saleColumn = new ALVColumn();
+            _saleColumn.Name = COLUMN_NAME_IS_SALE;
+            _saleColumn.Text = "Продан";
+            _saleColumn.AspectName = "sale";
+            _saleColumn.IsEditable = false;
+            _saleColumn.CheckBoxes = true;
+            _saleColumn.TriStateCheckBoxes = false;
+            _saleColumn.TextAlign = HorizontalAlignment.Center;
+            _saleColumn.Width = 80;
+            _saleColumn.UseFiltering = false;
+            _saleColumn.Tag = 1;
+            _saleColumn.FilteringStrategy = new CheckColumnFilterStrategy(_saleColumn);
+            this.Columns.Add(_saleColumn);
+            
             _typeDocNameColumn = new ALVColumn();
+            _typeDocNameColumn.Name = COLUMN_NAME_TYPE_DOC_NAME;
             _typeDocNameColumn.Text = "Документ";
             _typeDocNameColumn.AspectName = "typedocname";
             _typeDocNameColumn.IsEditable = false;
             _typeDocNameColumn.TextAlign = HorizontalAlignment.Center;
             _typeDocNameColumn.Width = 120;
             _typeDocNameColumn.Tag = 1;
+            _typeDocNameColumn.FilteringStrategy = new TextColumnFilterStrategy(_typeDocNameColumn, false);
             this.Columns.Add(_typeDocNameColumn);
             this.SecondarySortColumn = _typeDocNameColumn;
             this.SecondarySortOrder = SortOrder.Ascending;
@@ -305,45 +404,52 @@ namespace AccountingModule
             _nameDocColumn.TextAlign = HorizontalAlignment.Center;
             _nameDocColumn.Width = 120;
             _nameDocColumn.Tag = 1;
+            _nameDocColumn.FilteringStrategy = new TextColumnFilterStrategy(_nameDocColumn, false);
             this.Columns.Add(_nameDocColumn);
             
             _quConstrColumn = new ALVColumn();
+            _quConstrColumn.Name = COLUMN_NAME_QU_CONSTR;
             _quConstrColumn.Text = "Кол-во окон";
             _quConstrColumn.AspectName = "quconstr";
             _quConstrColumn.IsEditable = false;
             _quConstrColumn.TextAlign = HorizontalAlignment.Right;
             _quConstrColumn.Width = 60;
+            _quConstrColumn.ShowSelected = true;
             _quConstrColumn.ShowTotal = true;
             _quConstrColumn.UseFiltering = false;
             _quConstrColumn.Tag = 1;
             this.Columns.Add(_quConstrColumn);
             
             _smOrderColumn = new ALVColumn();
+            _smOrderColumn.Name = COLUMN_NAME_SM_ORDER;
             _smOrderColumn.Text = "Сумма заказа";
             _smOrderColumn.AspectName = "smorder";
+            _smOrderColumn.AspectToStringFormat = "{0:#,##0.00}";
             _smOrderColumn.IsEditable = false;
             _smOrderColumn.TextAlign = HorizontalAlignment.Right;
             _smOrderColumn.Width = 120;
+            _smOrderColumn.ShowSelected = true;
             _smOrderColumn.ShowTotal = true;
             _smOrderColumn.UseFiltering = false;
-            _smOrderColumn.WordWrap = true;
-            _smOrderColumn.AspectToStringFormat = "{0:#,##0.00}";
             _smOrderColumn.Tag = 1;
             this.Columns.Add(_smOrderColumn);
             
             _smDocColumn = new ALVColumn();
+            _smDocColumn.Name = COLUMN_NAME_SM_DOC;
             _smDocColumn.Text = "Сумма оплаты";
             _smDocColumn.AspectName = "smdoc";
             _smDocColumn.AspectToStringFormat = "{0:#,##0.00}";
             _smDocColumn.IsEditable = false;
             _smDocColumn.TextAlign = HorizontalAlignment.Right;
             _smDocColumn.Width = 120;
+            _smDocColumn.ShowSelected = true;
             _smDocColumn.ShowTotal = true;
             _smDocColumn.UseFiltering = false;
             _smDocColumn.Tag = 1;
             this.Columns.Add(_smDocColumn);
             
             _commentColumn = new ALVColumn();
+            _commentColumn.Name = COLUMN_NAME_COMMENT;
             _commentColumn.Text = "Примечание";
             _commentColumn.AspectName = "comment";
             _commentColumn.IsEditable = true;
@@ -353,55 +459,20 @@ namespace AccountingModule
             _commentColumn.Tag = 3;
             _balanceColumn = _commentColumn;
             this.Columns.Add(_commentColumn);
+
         }
-        
-        public void UpdateFilteringView()
+
+        bool MatchValue(object row)
         {
-            Predicate<object> filterPredicate = MatchText;
-            this.ModelFilter = new ModelFilter(filterPredicate);
-        }
-        
-        private bool MatchText(object o)
-        {
-            DataRowView rowView = (DataRowView)o;
-            DataRow dataRow = rowView.Row;
-            
-            bool result = true;
-            
-            string str = string.Empty;
-            string filterValue = string.Empty;
-            
-            foreach (ALVColumn col in Columns)
+            foreach (ALVColumn c in Columns)
             {
-                if (col == _dateColumn || col.FilterControl == null)
+                if (c == _dateColumn || c.FilterControl == null)
                     continue;
                 
-                str = dataRow[col.AspectName].ToString();
+                if(c.FilteringStrategy == null)
+                    continue;
                 
-                if (col.FilterControl.GetType() == typeof(ComboBox))
-                {
-                    filterValue = (col.FilterControl as ComboBox).Text;
-                    
-                    if(filterValue.Equals(MainForm.COMBOBOX_ITEM_ALL))
-                    {
-                        result = true;
-                    }
-                    else if(filterValue.Equals(DocSign.NO_GRID))
-                    {
-                        result = !IsValueEqual(str, DocSign.GRID);
-                    }
-                    else
-                    {
-                        result = IsValueEqual(str, filterValue);
-                    }
-                }
-                
-                if (col.FilterControl.GetType() == typeof(TextBoxWithBtn) ||
-                    col.FilterControl.GetType() == typeof(TextBox))
-                {
-                    filterValue = (col.FilterControl as TextBox).Text;
-                    result = IsValueStartsWith(str, filterValue);
-                }
+                bool result = c.FilteringStrategy.DoFilter(row);
                 
                 if (!result)
                     return result;
@@ -409,97 +480,206 @@ namespace AccountingModule
             
             return true;
         }
-        
-        private bool IsValueEqual(string inputString, string filter)
-        {
-            return (string.IsNullOrEmpty(filter)) ? true : inputString.Equals(filter, StringComparison.InvariantCultureIgnoreCase);
-        }
-        
-        private bool IsValueStartsWith(string inputString, string filter)
-        {
-            return (string.IsNullOrEmpty(filter)) ? true : inputString.StartsWith(filter, StringComparison.InvariantCultureIgnoreCase);
-        }
-        
-        private void GenerateTotalTextBox()
-        {
-            foreach (ALVColumn c in this.Columns)
-            {
-                if (c.ShowTotal || c.CalcBalance)
-                {
-                    c.TotalBox = NewTotalTextBox();
-                    _totalPanel.Controls.Add(c.TotalBox);
-                }
-            }
-        }
-        
-        private TextBox NewTotalTextBox()
+
+        TextBox SummaryBox(TotalBoxFormatter textFormatter)
         {
             TextBox textBox = new TextBox();
+            
             textBox.ReadOnly = true;
-            //            textBox.BackColor = Color.White;
+            
             textBox.TextAlign = HorizontalAlignment.Right;
+            
             textBox.BorderStyle = BorderStyle.FixedSingle;
-            textBox.ShortcutsEnabled = false;
-            textBox.TextChanged += new TotalBoxDoubleFormatter().FormatEvent;
+            
+            textBox.TextChanged += textFormatter.FormatEvent;
+            
             textBox.Font = new Font("Microsoft Sans Serif", 9f, FontStyle.Bold);
+            
             return textBox;
         }
         
-        private void GetTotalValues(ListViewItemCollection collection)
+        void GetTotalValues(Dictionary<string, double> dictionary, IEnumerable collection)
         {
-            totalDic = new Dictionary<string, double>();
+            dictionary.Clear();
             
-            if (collection == null || collection.Count < 1)
+            if (collection == null)
                 return;
             
-            foreach (ALVColumn column in this.Columns)
+            foreach (ALVColumn c in Columns)
             {
-                if (!column.ShowTotal)
+                if (!c.ShowTotal && !c.ShowSelected)
                     continue;
                 
-                if (!totalDic.ContainsKey(column.AspectName))
-                {
-                    totalDic.Add(column.AspectName, 0d);
-                }
+                dictionary.Add(c.AspectName, 0d);
             }
             
-            List<string> keys = new List<string>(totalDic.Keys);
+            List<string> keys = new List<string>(dictionary.Keys);
             
-            DataRowView rowView = null;
-            Type rowType;
-            
-            for (int count = 0; count < collection.Count; count++)
+            foreach(DataRowView item in collection)
             {
-                rowView = (DataRowView)(collection[count] as OLVListItem).RowObject;
-                foreach (String key in keys)
+                foreach(string key in keys)
                 {
-                    rowType = rowView.Row[key].GetType();
-                    if (Utils.IsNumericType(rowType))
+                    if(item.Row[key] != DBNull.Value)
                     {
-                        totalDic[key] += Convert.ToDouble(rowView.Row[key]);
+                        dictionary[key] += Convert.ToDouble(item.Row[key]);
                     }
                 }
             }
-
-            if (_balanceColumn != null)
-            {
-                if (!totalDic.ContainsKey(_balanceColumn.AspectName))
-                {
-                    totalDic.Add(_balanceColumn.AspectName, 0d);
-                }
-                totalDic[_balanceColumn.AspectName] = GetBalance("smorder", "smdoc");
-            }
-
         }
         
-        private double GetBalance(string orderAspectName, string paymentAspectName)
+        double CalcBalance(string orderAspectName, string paymentAspectName)
         {
-            double orderSm = 0d;
-            double paymentSm = 0d;
+            double orderSm = (totalDic.ContainsKey(orderAspectName)) ? totalDic[orderAspectName] : 0d;
             
-            orderSm = (totalDic.ContainsKey(orderAspectName)) ? totalDic[orderAspectName] : orderSm;
-            paymentSm = (totalDic.ContainsKey(paymentAspectName)) ? totalDic[paymentAspectName] : paymentSm;
+            double paymentSm = (totalDic.ContainsKey(paymentAspectName)) ? totalDic[paymentAspectName] : 0d;
+            
             return orderSm - paymentSm;
+        }
+        
+        string GetSummaryValue(Dictionary<string, double> dictionary, string name)
+        {
+            if(dictionary.ContainsKey(name))
+            {
+                return dictionary[name].ToString();
+            }
+            
+            return String.Empty;
+        }
+        
+        void MoveControlPosition(Control control, Rectangle bounds)
+        {
+            control.Location = new Point(bounds.Left + 3, 4);
+            control.Size = new Size(bounds.Width - 1, 32);
+        }
+        
+        void OnItemsChanged(object sender, ItemsChangedEventArgs e)
+        {
+            UpdateTotalSummary();
+        }
+        
+        void RefreshBoxValue()
+        {
+            foreach(ALVColumn c in Columns)
+            {
+                if (c.ShowTotal || c.CalcBalance)
+                {
+                    c.TotalBox.Text = GetSummaryValue(totalDic, c.AspectName);
+                }
+                
+                if(c.ShowSelected)
+                {
+                    c.SelectedBox.Text = GetSummaryValue(selectedDic, c.AspectName);
+                }
+            }
+        }
+        
+        protected override void OnDrawColumnHeader(DrawListViewColumnHeaderEventArgs e)
+        {
+            ALVColumn column = e.Header as ALVColumn;
+            
+            if (PrimarySortColumn == column)
+            {
+                column.HeaderImageKey = (PrimarySortOrder == SortOrder.Ascending) ? "asc" : "desc";
+            }
+            
+            if (SecondarySortColumn == column)
+            {
+                column.HeaderImageKey = (SecondarySortOrder == SortOrder.Ascending) ? "asc" : "desc";
+            }
+
+            if (column.isPositionChanged && column.FilterControl != null )
+            {
+                MoveControlPosition(column.FilterControl, e.Bounds);
+            }
+            
+            if (column.isPositionChanged && (column.ShowTotal || column.CalcBalance))
+            {
+                MoveControlPosition(column.TotalBox, e.Bounds);
+            }
+            
+            if(column.isPositionChanged && column.ShowSelected)
+            {
+                MoveControlPosition(column.SelectedBox, e.Bounds);
+            }
+
+            column.isPositionChanged = false;
+            
+            base.OnDrawColumnHeader(e);
+        }
+        
+        protected override void OnColumnWidthChanged(ColumnWidthChangedEventArgs e)
+        {
+            (Columns[e.ColumnIndex] as ALVColumn).isPositionChanged = true;
+            
+            if(e.ColumnIndex < Columns.Count)
+            {
+                for(int index = e.ColumnIndex; index < Columns.Count; index++)
+                {
+                    (Columns[index] as ALVColumn).isPositionChanged = true;
+                }
+            }
+            
+            base.OnColumnWidthChanged(e);
+        }
+        
+        void UpdateTotalSummary()
+        {
+            GetTotalValues(totalDic, FilteredObjects);
+            
+            if (_balanceColumn != null)
+            {
+                string balanceName = _balanceColumn.AspectName;
+
+                totalDic.Add(balanceName, CalcBalance("smorder", "smdoc"));
+            }
+            
+            RefreshBoxValue();
+        }
+        
+        public void UpdateSelectedSummary()
+        {
+            GetTotalValues(selectedDic, SelectedObjects);
+            
+            RefreshBoxValue();
+        }
+        
+        public void CreateSummaryTextBox()
+        {
+            TextBox box = null;
+            
+            foreach(ALVColumn c in Columns)
+            {
+                TotalBoxFormatter formatter;
+                
+                if(c.Name == COLUMN_NAME_QU_CONSTR)
+                {
+                    formatter = new IntFormatter();
+                }
+                else
+                {
+                    formatter = new DoubleFormatter();
+                }
+                
+                if(TotalPanel != null)
+                {
+                    if(c.CalcBalance || c.ShowTotal)
+                    {
+                        box = SummaryBox(formatter);
+                        c.TotalBox = box;
+                        TotalPanel.Controls.Add(box);
+                    }
+                }
+                
+                if(SelectPanel != null)
+                {
+                    if(c.ShowSelected)
+                    {
+                        box = SummaryBox(formatter);
+                        c.SelectedBox = box;
+                        SelectPanel.Controls.Add(box);
+                    }
+                }
+            }
         }
         
         public void AutoSizeColumn()
@@ -516,96 +696,36 @@ namespace AccountingModule
             }
         }
         
-        protected override void OnDrawColumnHeader(DrawListViewColumnHeaderEventArgs e)
+        public void UpdateFilteringView()
         {
-            ALVColumn column = e.Header as ALVColumn;
+            Predicate<object> filterPredicate = MatchValue;
             
-            base.OnDrawColumnHeader(e);
+            ModelFilter = new ModelFilter(filterPredicate);
             
-            if (this.PrimarySortColumn == column)
-            {
-                column.HeaderImageKey = (this.PrimarySortOrder == SortOrder.Ascending) ? "asc" : "desc";
-            }
-            
-            if (this.SecondarySortColumn == column)
-            {
-                column.HeaderImageKey = (this.SecondarySortOrder == SortOrder.Ascending) ? "asc" : "desc";
-            }
-            
-            if (!isGeneratedTotalBox && _totalPanel != null)
-            {
-                GenerateTotalTextBox();
-                isGeneratedTotalBox = true;
-            }
-            
-            if (column.FilterControl != null)
-            {
-                CalcControlPosition(column.FilterControl, e.Bounds);
-            }
-            
-            if (column.ShowTotal || column.CalcBalance)
-            {
-                CalcControlPosition(column.TotalBox, e.Bounds);
-                column.TotalBox.Text = (totalDic.ContainsKey(column.AspectName)) ? totalDic[column.AspectName].ToString() : String.Empty;
-            }
-            
-            column.IsColumnWidthChanged = false;
-        }
-        
-        protected override void OnColumnWidthChanged(ColumnWidthChangedEventArgs e)
-        {
-            (this.Columns[e.ColumnIndex] as ALVColumn).IsColumnWidthChanged = true;
-        }
-        
-        private void CalcControlPosition(Control control, Rectangle bounds)
-        {
-            control.Location = new System.Drawing.Point(bounds.Left + 3, 4);
-            control.Size = new System.Drawing.Size(bounds.Width - 1, 32);
-        }
-
-        protected void OnItemsChanged(object sender, ItemsChangedEventArgs e)
-        {
-            try
-            {
-                GetTotalValues(this.Items);
-            }
-            catch (Exception ex)
-            {
-                AtLog.AddMessage(ex.Message + "  \\n\\r " +
-                                 ex.StackTrace);
-            }
+            UpdateTotalSummary();
         }
         
         abstract class TotalBoxFormatter
         {
-            
             public abstract void FormatEvent(object sender, EventArgs e);
-            
         }
         
-        class TotalBoxDoubleFormatter : TotalBoxFormatter
+        class DoubleFormatter : TotalBoxFormatter
         {
-            
             public override void FormatEvent(object sender, EventArgs e)
             {
                 TextBox textBox = (TextBox)sender;
                 textBox.Text = string.Format("{0:#,##0.00}", double.Parse(textBox.Text));
             }
-            
         }
         
-        class TotalBoxIntFormatter : TotalBoxFormatter
+        class IntFormatter : TotalBoxFormatter
         {
-            
             public override void FormatEvent(object sender, EventArgs e)
             {
                 TextBox textBox = (TextBox)sender;
                 textBox.Text = string.Format("{0:d}", int.Parse(textBox.Text));
             }
-            
         }
-        
     }
-    
-
 }

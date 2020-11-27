@@ -1,70 +1,58 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Windows.Forms;
+using System.Xml.Serialization;
 using Atechnology.Components;
-using Atechnology.DBConnections2;
+using Atechnology.Components.AtLogWatcher;
 using Atechnology.ecad;
 using Atechnology.ecad.Document;
-using Atechnology.ecad.Document.Classes;
-using BrightIdeasSoftware;
-using BrightIdeasSoftware.Design;
 using Logistic.ProductionSchedule.Scheduler;
 
 namespace AccountingModule
 {
     public partial class MainForm : AtUserControl
     {
-        
         public static readonly string COMBOBOX_ITEM_ALL = "Все";
         
-        public static readonly string[] DocTypeNames = new[] { COMBOBOX_ITEM_ALL, "Заказ", "Бонус", "Сальдо", "Платеж" };
+        public static readonly string COMBOBOX_ITEM_SALE_CKECK = "Продан";
+        public static readonly string COMBOBOX_ITEM_SALE_UNCKECK = "Не продан";
         
-        private Period periodForm;
+        static readonly string[] DocTypeNames = { COMBOBOX_ITEM_ALL,
+            "Заказ",
+            "Бонус",
+            "Сальдо",
+            "Платеж" };
         
-        private AccountingDoc accountingDoc;
+        static readonly string[] DocSignNames = { COMBOBOX_ITEM_ALL,
+            DocSign.GRID,
+            DocSign.NO_GRID };
         
-        private Dictionary<Control, ALVColumn> filterLink = new Dictionary<Control, ALVColumn>();
+        static readonly string[] SaleNames = { COMBOBOX_ITEM_ALL,
+            COMBOBOX_ITEM_SALE_CKECK,
+            COMBOBOX_ITEM_SALE_UNCKECK };
+        
+        Period periodForm = new Period();
+        
+        AccountingDoc accountingDoc;
         
         public MainForm() {
+            
             InitializeComponent();
             
-            periodForm = new Period();
-            
             dateComboBox.Items.Add(periodForm.StringInterval);
+            
             dateComboBox.SelectedIndex = 0;
-
-            //            filterLink.Add(dateComboBox, accountingListView.DateColumn);
-            /*filterLink.Add(customerCodeFilterBox, accountingListView.CustomerCodeColumn);
-            filterLink.Add(customerNameFilterBox, accountingListView.CustomerNameColumn);
-            filterLink.Add(managerFilterBox, accountingListView.ManagerNameColumn);
-            filterLink.Add(accountingSignFilterBox, accountingListView.AccountingSignColumn);
-            filterLink.Add(docTypeComboBox, accountingListView.TypeDocNameColumn);
-            filterLink.Add(docNameFilter, accountingListView.NameDocColumn);*/
             
             paymentsLoadBtn.Enabled = Grant.Docs.Payment;
             closeFinPeriodBtn.Enabled = Grant.Docs.Payment;
-            
-            accountingDoc = new AccountingDoc(this.db, accountingListView, GetFilter());
-            
+            exportRealizationBtn.Enabled = Grant.Docs.Payment;
+
             docTypeComboBox.DataSource = DocTypeNames;
             
-            accountingSignFilterBox.DataSource = new[] {COMBOBOX_ITEM_ALL, DocSign.GRID, DocSign.NO_GRID};
+            accountingSignFilterBox.DataSource = DocSignNames;
             
-            managerComboBox.Items.Add(COMBOBOX_ITEM_ALL);
-            
-            string peopleFio = "";
-            
-            foreach(DataRow peopleRow in accountingDoc.PeopleTable.Rows)
-            {
-                peopleFio = (string)peopleRow["lastname"] + " " + (string)peopleRow["name"];
-                ToolStripMenuItem item = new ToolStripMenuItem();
-                item.Text = peopleFio;
-                item.Tag = peopleRow;
-                item.Click += ChangeManagerClickHandler;
-                changePeopleList.DropDownItems.Add(item);
-                managerComboBox.Items.Add(peopleFio);
-            }
+            saleFilter.DataSource = SaleNames;
         }
         
         void ChangeManagerClickHandler(object sender, EventArgs e)
@@ -83,10 +71,34 @@ namespace AccountingModule
         
         void UpdateManager(int idpeople)
         {
-            foreach(DataRowView drv in accountingListView.SelectedObjects)
+            foreach(DataRowView drv in mainListView.SelectedObjects)
             {
                 accountingDoc.UpdatePeople((DataRow) drv.Row, idpeople);
             }
+        }
+        
+        void UpdateChangeManagerMenu()
+        {
+            managerComboBox.Items.Add(COMBOBOX_ITEM_ALL);
+            
+            string peopleFio = "";
+            
+            foreach(DataRow peopleRow in accountingDoc.PeopleTable.Rows)
+            {
+                peopleFio = (string)peopleRow["lastname"] + " " + (string)peopleRow["name"];
+                
+                ToolStripMenuItem item = new ToolStripMenuItem();
+                
+                item.Text = peopleFio;
+                item.Tag = peopleRow;
+                item.Click += ChangeManagerClickHandler;
+                
+                changePeopleList.DropDownItems.Add(item);
+                
+                managerComboBox.Items.Add(peopleFio);
+            }
+            
+            managerComboBox.SelectedIndex = 0;
         }
         
         void RefreshAccountingDocView()
@@ -119,12 +131,60 @@ namespace AccountingModule
             this.Close();
         }
         
+        void LoadSettings()
+        {
+            XmlSerializer formatter = new XmlSerializer(typeof(AccountSettings));
+            
+            string path = Settings.Base.LayoutAndSettingsPath + "\\accountSettings.xml";
+            
+            if(!File.Exists(path))
+                return;
+            
+            using (FileStream fs = new FileStream(path, FileMode.Open))
+            {
+                AccountSettings settings = (AccountSettings)formatter.Deserialize(fs);
+                
+                for(int index = 0; index <= mainListView.Columns.Count - 1; index++)
+                {
+                    mainListView.Columns[index].Width = settings.columnList[index].width;
+                }
+            }
+            
+        }
+        
+        void SaveSettings()
+        {
+            XmlSerializer formatter = new XmlSerializer(typeof(AccountSettings));
+            
+            string path = Settings.Base.LayoutAndSettingsPath + "\\accountSettings.xml";
+            
+            using (FileStream fs = new FileStream(path, FileMode.Create))
+            {
+                AccountSettings settings = new AccountSettings();
+                
+                foreach(ALVColumn c in mainListView.Columns)
+                {
+                    settings.columnList.Add(c.Name, c.Width);
+                }
+                
+                try
+                {
+                    formatter.Serialize(fs, settings);
+                }
+                catch (Exception e)
+                {
+                    AtLog.AddMessage(e.Message);
+                }
+            }
+        }
+        
         void MainFormFormClosing(object sender, FormClosingEventArgs e)
         {
             ShowSaveDialogBox();
+            SaveSettings();
         }
         
-        private void ShowSaveDialogBox() {
+        void ShowSaveDialogBox() {
             if(accountingDoc.HaveChanges() &&
                MessageBox.Show("Сохранить изменения?", "Фин. учет", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK){
                 accountingDoc.SaveAccountingTable();
@@ -133,32 +193,32 @@ namespace AccountingModule
         
         void DocNameFilterTextChanged(object sender, EventArgs e)
         {
-            accountingListView.UpdateFilteringView();
+            mainListView.UpdateFilteringView();
         }
         
         void DocTypeFilterTextChanged(object sender, EventArgs e)
         {
-            accountingListView.UpdateFilteringView();
+            mainListView.UpdateFilteringView();
         }
         
         void AccountingSignFilterBoxTextChanged(object sender, EventArgs e)
         {
-            accountingListView.UpdateFilteringView();
+            mainListView.UpdateFilteringView();
         }
         
         void CustomerNameFilterBoxTextChanged(object sender, EventArgs e)
         {
-            accountingListView.UpdateFilteringView();
+            mainListView.UpdateFilteringView();
         }
         
         void CustomerCodeFilterBoxTextChanged(object sender, EventArgs e)
         {
-            accountingListView.UpdateFilteringView();
+            mainListView.UpdateFilteringView();
         }
         
         void DateFilterBoxTextChanged(object sender, EventArgs e)
         {
-            accountingListView.UpdateFilteringView();
+            mainListView.UpdateFilteringView();
         }
         
         void ToolStriPeriodSelectDropDown(object sender, EventArgs e)
@@ -174,26 +234,18 @@ namespace AccountingModule
             }
             SendKeys.Send("{Enter}");
         }
+        
         void Button1Click(object sender, EventArgs e)
-        {
-            
-            if(accountingListView.Items.Count < 1)
+        {            
+            if(mainListView.Items.Count < 1)
                 return;
             
             using (AtUserControl.WithUIBlock)
-            {
-//                DataRowView rowView = (DataRowView)(accountingListView.Items[0] as OLVListItem).RowObject;
-//                
-//                DataTable sourceDt = rowView.Row.Table.Copy();
-//                
-//                for (int index = 0; index < accountingListView.Items.Count; index++)
-//                {
-//                    sourceDt.ImportRow(((DataRowView)(accountingListView.Items[index] as OLVListItem).RowObject).Row);
-//                }
-                
-                ReportUtil.exportFin(accountingListView.FilteredObjects, periodForm.StringInterval);
+            {          
+                ReportUtil.exportFin(mainListView.FilteredObjects, periodForm.StringInterval);
             }
         }
+        
         void ToolStripButton1Click(object sender, EventArgs e)
         {
             AtUserControl paymentImport = new PaymentImportForm(this.accountingDoc);
@@ -203,7 +255,7 @@ namespace AccountingModule
         
         void ПодборШиринывсеКолонкиToolStripMenuItemClick(object sender, EventArgs e)
         {
-            accountingListView.AutoSizeColumn();
+            mainListView.AutoSizeColumn();
         }
         
         void DateComboBoxDropDown(object sender, EventArgs e)
@@ -233,7 +285,7 @@ namespace AccountingModule
         {
             using (AtUserControl.WithUIBlock)
             {
-                accountingListView.UpdateFilteringView();
+                mainListView.UpdateFilteringView();
             }
         }
         
@@ -241,7 +293,7 @@ namespace AccountingModule
         {
             using (AtUserControl.WithUIBlock)
             {
-                accountingListView.UpdateFilteringView();
+                mainListView.UpdateFilteringView();
             }
         }
         
@@ -249,16 +301,21 @@ namespace AccountingModule
         {
             using (AtUserControl.WithUIBlock)
             {
-                accountingListView.UpdateFilteringView();
+                mainListView.UpdateFilteringView();
             }
         }
         
         void AccountingListViewDoubleClick(object sender, EventArgs e)
         {
-            if(accountingListView.SelectedObject == null)
+            OpenDoc();
+        }
+        
+        void OpenDoc()
+        {
+            if(mainListView.SelectedObject == null)
                 return;
             
-            DataRowView view = accountingListView.SelectedObject as DataRowView;
+            DataRowView view = mainListView.SelectedObject as DataRowView;
             DataRow dr = view.Row as DataRow;
             
             if(dr == null)
@@ -295,6 +352,92 @@ namespace AccountingModule
             }
         }
         
+        void HighlighetBtnClick(object sender, EventArgs e)
+        {
+            SetColorToRows();
+        }
         
+        void SetColorToRows()
+        {
+            ColorDialog colorDialog = new ColorDialog();
+            
+            if(colorDialog.ShowDialog() == DialogResult.OK)
+            {
+                foreach(int index in mainListView.SelectedIndices)
+                {
+                    mainListView.Renderer.AddBackgroundColorToRow(index, colorDialog.Color);
+                }
+            }
+        }
+        
+        void MainFormLoad(object sender, EventArgs e)
+        {
+            LoadSettings();
+            
+            mainListView.CreateSummaryTextBox();
+            
+            using (AtUserControl.WithUIBlock)
+            {
+                accountingDoc = new AccountingDoc(this.db, mainListView, GetFilter());
+            }
+            
+            UpdateChangeManagerMenu();
+        }
+        
+        void ОткрытьToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            OpenDoc();
+        }
+        
+        void ЗаливкаToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            SetColorToRows();
+        }
+        
+        void БезЗаливкиToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            foreach(int index in mainListView.SelectedIndices)
+            {
+                mainListView.Renderer.RemoveRowBackgroundColor(index);
+            }
+        }
+        
+        void AccountingListViewSelectionChanged(object sender, EventArgs e)
+        {
+            mainListView.UpdateSelectedSummary();
+        }
+        
+        void SaleFilterSelectedIndexChanged(object sender, EventArgs e)
+        {
+            using (AtUserControl.WithUIBlock)
+            {
+                mainListView.UpdateFilteringView();
+            }
+        }
+        
+        void ManagerComboBoxTextUpdate(object sender, EventArgs e)
+        {
+            using (AtUserControl.WithUIBlock)
+            {
+                mainListView.UpdateFilteringView();
+            }
+        }
+        
+        void ExportRealizationBtnClick(object sender, EventArgs e)
+        {
+            if(mainListView.SelectedObjects == null || mainListView.SelectedObjects.Count < 1)
+                return;
+            
+            SaveFileDialog dialog = new SaveFileDialog();
+            
+            dialog.AddExtension = true;
+            
+            dialog.DefaultExt = ".xml";
+            
+            if(dialog.ShowDialog() != DialogResult.OK)
+                return;
+            
+            
+        }
     }
 }

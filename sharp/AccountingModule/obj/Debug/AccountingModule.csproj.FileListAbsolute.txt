@@ -33,9 +33,6 @@ C:\Users\Atechnology\Documents\SharpDevelop Projects\AccountingModule\Accounting
 C:\Users\Atechnology\Documents\SharpDevelop Projects\AccountingModule\AccountingModule\bin\Debug\AccountingModule.dll
 C:\Users\Atechnology\Documents\SharpDevelop Projects\AccountingModule\AccountingModule\obj\Debug\AccountingModule.dll
 C:\Users\Atechnology\Documents\SharpDevelop Projects\AccountingModule\AccountingModule\obj\Debug\AccountingModule.DropDownDocumentForm.resources
-C:\develop\accountingModule\sharp\AccountingModule\obj\Debug\AccountingModule.csprojResolveAssemblyReference.cache
-C:\develop\accountingModule\sharp\AccountingModule\obj\Debug\AccountingModule.DropDownDocumentForm.resources
-C:\develop\accountingModule\sharp\AccountingModule\obj\Debug\AccountingModule.FilterForm.resources
 C:\develop\accountingModule\sharp\AccountingModule\obj\Debug\AccountingModule.icons.resources
 C:\develop\accountingModule\sharp\AccountingModule\obj\Debug\AccountingModule.MainForm.resources
 C:\develop\accountingModule\sharp\AccountingModule\obj\Debug\AccountingModule.csproj.GenerateResource.Cache
@@ -44,7 +41,6 @@ C:\develop\accountingModule\sharp\AccountingModule\bin\Debug\Atechnology.Compone
 C:\develop\accountingModule\sharp\AccountingModule\bin\Debug\Atechnology.DBConnection.dll
 C:\develop\accountingModule\sharp\AccountingModule\bin\Debug\Atechnology.ecad.Document.dll
 C:\develop\accountingModule\sharp\AccountingModule\bin\Debug\Atechnology.winDraw.dll
-C:\develop\accountingModule\sharp\AccountingModule\bin\Debug\DbExtensions.dll
 C:\develop\accountingModule\sharp\AccountingModule\bin\Debug\SandDock.dll
 C:\develop\accountingModule\sharp\AccountingModule\bin\Debug\DevExpress.XtraTreeList.v8.2.dll
 C:\develop\accountingModule\sharp\AccountingModule\bin\Debug\DevExpress.XtraEditors.v8.2.dll
@@ -88,6 +84,7 @@ C:\develop\accountingModule\sharp\AccountingModule\bin\Debug\Stimulsoft.Editor.d
 C:\develop\accountingModule\sharp\AccountingModule\obj\Debug\AccountingModule.pdb
 C:\develop\accountingModule\sharp\AccountingModule\bin\Debug\ObjectListView.dll
 C:\develop\accountingModule\sharp\AccountingModule\obj\Debug\AccountingModule.PaymentImportForm.resources
+C:\develop\accountingModule\sharp\AccountingModule\obj\Debug\AccountingModule.СlosePeriodForm.resources
+C:\develop\accountingModule\sharp\AccountingModule\obj\Debug\AccountingModule.csprojResolveAssemblyReference.cache
 C:\develop\accountingModule\sharp\AccountingModule\bin\Debug\AccountingModule.dll
 C:\develop\accountingModule\sharp\AccountingModule\obj\Debug\AccountingModule.dll
-C:\develop\accountingModule\sharp\AccountingModule\obj\Debug\AccountingModule.СlosePeriodForm.resources

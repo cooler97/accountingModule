@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Windows.Forms;
 using Atechnology.Components;
 using Atechnology.Components.AtLogWatcher;
-using Atechnology.DBConnections2;
 
 namespace AccountingModule
 {
@@ -14,16 +12,22 @@ namespace AccountingModule
             AtLogWatcher logWatcher = new AtLogWatcher();
             
             try
-                {
-                
+                {                
                     if (log)
                         {
                             MdiManager.Add(logWatcher);
                             AtLog.LogWatcher = logWatcher;
                         }
                     
+                    try
+                    {
                     form = new MainForm();
                     MdiManager.Add((AtUserControl)form);
+                    }
+                    catch(Exception e)
+                    {
+                        AtLog.AddMessage(e.ToString());
+                    }
 
                 }
             finally
